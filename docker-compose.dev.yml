@@ -1,0 +1,61 @@
+
+services:
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        REQUIREMENTS: development
+    command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      - DJANGO_SETTINGS_MODULE=pycore.settings.development
+
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        REQUIREMENTS: development
+
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        REQUIREMENTS: development
+
+  frontend:
+    command: npm run dev -- --host 0.0.0.0
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "127.0.0.1:5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - pycore-network
+
+  flower:
+    image: mher/flower:2.0
+    command: celery --broker=${CELERY_BROKER_URL} flower --basic_auth=${FLOWER_USER}:${FLOWER_PASSWORD}
+    ports:
+      - "127.0.0.1:5555:5555"
+    depends_on:
+      - redis
+    networks:
+      - pycore-network
+
+  nginx:
+    ports:
+      - "8080:80"
+      - "8082:8082"
+
+volumes:
+  pgadmin-data:

@@ -1,0 +1,1 @@
+export { ColaboradoresList } from './ColaboradoresList'

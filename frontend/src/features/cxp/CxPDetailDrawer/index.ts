@@ -1,0 +1,1 @@
+export { CxPDetailDrawer } from './CxPDetailDrawer'

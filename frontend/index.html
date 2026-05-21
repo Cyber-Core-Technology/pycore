@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon"  href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+
+    <!-- iOS / Apple -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable"          content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title"            content="PyCore ERP" />
+
+    <!-- Android / Chrome -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Tema y viewport -->
+    <meta name="theme-color"    content="#0F1E1A" />
+    <!--
+      viewport-fit=cover: permite que el contenido llegue a los bordes en iPhones con notch.
+      Los banners usan env(safe-area-inset-*) para respetar las áreas seguras.
+    -->
+    <meta name="viewport"       content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <title>PyCore ERP</title>
+
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* Animaciones de entrada de los banners PWA */
+      @keyframes slideUp {
+        from { transform: translateY(100%); opacity: 0; }
+        to   { transform: translateY(0);    opacity: 1; }
+      }
+      @keyframes slideDown {
+        from { transform: translateY(-100%); opacity: 0; }
+        to   { transform: translateY(0);     opacity: 1; }
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0);   }
+      }
+
+      /* Modo standalone: ocultar scrollbar del sistema en iOS */
+      @media (display-mode: standalone) {
+        body { overscroll-behavior: none; }
+      }
+
+      /* Safe area padding — usado por banners inferior */
+      :root {
+        --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+        --safe-area-top:    env(safe-area-inset-top,    0px);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

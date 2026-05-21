@@ -1,0 +1,1 @@
+export { ClienteDetailDrawer } from './ClienteDetailDrawer'

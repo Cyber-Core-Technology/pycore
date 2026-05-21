@@ -1,0 +1,1 @@
+export { NewSaleModal } from './NewSaleModal'

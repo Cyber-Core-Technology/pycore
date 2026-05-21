@@ -1,0 +1,1 @@
+export { SaleSuccessModal } from './SaleSuccessModal'

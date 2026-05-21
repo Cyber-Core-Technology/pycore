@@ -1,0 +1,1 @@
+export { ProveedorFormModal } from './ProveedorFormModal'

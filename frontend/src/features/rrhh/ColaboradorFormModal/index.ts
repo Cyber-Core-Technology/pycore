@@ -1,0 +1,1 @@
+export { ColaboradorFormModal } from './ColaboradorFormModal'

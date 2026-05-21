@@ -1,0 +1,1 @@
+export { GastoFormModal } from './GastoFormModal'

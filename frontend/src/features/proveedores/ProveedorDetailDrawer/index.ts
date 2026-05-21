@@ -1,0 +1,1 @@
+export { ProveedorDetailDrawer } from './ProveedorDetailDrawer'

@@ -1,0 +1,1 @@
+export { CuentaBancariaFormModal } from './CuentaBancariaFormModal'

@@ -1,0 +1,412 @@
+export interface ThemePalette {
+  key: string
+  name: string
+  description: string
+  primary: string
+  vars: {
+    light: Record<string, string>
+    dark: Record<string, string>
+  }
+}
+
+export const PALETTES: Record<string, ThemePalette> = {
+  esmeralda: {
+    key: 'esmeralda',
+    name: 'Esmeralda',
+    description: 'Verde teal — el tema por defecto',
+    primary: '#18AE91',
+    vars: {
+      light: {
+        '--color-primary':      '#18AE91',
+        '--color-primary-text': '#0B1A14',
+        '--color-secondary':    '#8E7C66',
+        '--color-accent':       '#7AE8C3',
+        '--bg':                 '#F2F8F6',
+        '--surface-hover':      '#E6F2EE',
+        '--border':             '#DCE7E3',
+        '--text-secondary':     '#4A5D57',
+        '--text-disabled':      '#9BAF80',
+        '--sidebar-bg':         '#142024',
+        '--sidebar-text':       '#A7CFC5',
+        '--sidebar-active':     '#18AE91',
+        '--sidebar-hover':      '#1A3A33',
+      },
+      dark: {
+        '--bg':                 '#0B1A14',
+        '--surface':            '#142024',
+        '--surface-hover':      '#1A3A33',
+        '--border':             '#234645',
+        '--text-secondary':     '#A7CFC5',
+        '--text-disabled':      '#668886',
+        '--text-inverse':       '#0F1E1A',
+        '--sidebar-bg':         '#0B1A14',
+        '--sidebar-text':       '#A7CFC5',
+        '--sidebar-active':     '#18AE91',
+        '--sidebar-hover':      '#1A3A33',
+      },
+    },
+  },
+
+  indigo: {
+    key: 'indigo',
+    name: 'Índigo',
+    description: 'Azul-morado tecnológico',
+    primary: '#4F46E5',
+    vars: {
+      light: {
+        '--color-primary':      '#4F46E5',
+        '--color-primary-text': '#FFFFFF',
+        '--color-secondary':    '#6366F1',
+        '--color-accent':       '#E0E7FF',
+        '--bg':                 '#F7F8FA',
+        '--surface-hover':      '#EEF0F4',
+        '--border':             '#E4E6EA',
+        '--text-secondary':     '#4B5563',
+        '--text-disabled':      '#9CA3AF',
+        '--sidebar-bg':         '#1E1B4B',
+        '--sidebar-text':       '#9DA4D6',
+        '--sidebar-active':     '#6366F1',
+        '--sidebar-hover':      '#2D2A5E',
+      },
+      dark: {
+        '--bg':                 '#111115',
+        '--surface':            '#18181E',
+        '--surface-hover':      '#202028',
+        '--border':             '#2C2C38',
+        '--text':               '#EAEDF4',
+        '--text-secondary':     '#9498C4',
+        '--text-disabled':      '#5A5A6E',
+        '--text-inverse':       '#111115',
+        '--sidebar-bg':         '#0D0B28',
+        '--sidebar-text':       '#9DA4D6',
+        '--sidebar-active':     '#6366F1',
+        '--sidebar-hover':      '#1C1A42',
+      },
+    },
+  },
+
+  violeta: {
+    key: 'violeta',
+    name: 'Violeta',
+    description: 'Morado premium y creativo',
+    primary: '#6D28D9',
+    vars: {
+      light: {
+        '--color-primary':      '#6D28D9',
+        '--color-primary-text': '#FFFFFF',
+        '--color-secondary':    '#7C3AED',
+        '--color-accent':       '#EDE9FE',
+        '--bg':                 '#F7F8FA',
+        '--surface-hover':      '#EEF0F4',
+        '--border':             '#E4E6EA',
+        '--text-secondary':     '#4B5563',
+        '--text-disabled':      '#9CA3AF',
+        '--sidebar-bg':         '#1A0F3A',
+        '--sidebar-text':       '#A892C8',
+        '--sidebar-active':     '#7C3AED',
+        '--sidebar-hover':      '#251548',
+      },
+      dark: {
+        '--bg':                 '#111115',
+        '--surface':            '#18181E',
+        '--surface-hover':      '#202028',
+        '--border':             '#2C2C38',
+        '--text':               '#EAEDF4',
+        '--text-secondary':     '#A594C8',
+        '--text-disabled':      '#5A5A6E',
+        '--text-inverse':       '#111115',
+        '--sidebar-bg':         '#0E0820',
+        '--sidebar-text':       '#A892C8',
+        '--sidebar-active':     '#7C3AED',
+        '--sidebar-hover':      '#1A1035',
+      },
+    },
+  },
+
+  carmesi: {
+    key: 'carmesi',
+    name: 'Carmesí',
+    description: 'Rojo sólido — urgente y dinámico',
+    primary: '#B91C1C',
+    vars: {
+      light: {
+        '--color-primary':      '#B91C1C',
+        '--color-primary-text': '#FFFFFF',
+        '--color-secondary':    '#DC2626',
+        '--color-accent':       '#FEE2E2',
+        '--bg':                 '#F7F8FA',
+        '--surface-hover':      '#EEF0F4',
+        '--border':             '#E4E6EA',
+        '--text-secondary':     '#4B5563',
+        '--text-disabled':      '#9CA3AF',
+        '--sidebar-bg':         '#1C0808',
+        '--sidebar-text':       '#C08080',
+        '--sidebar-active':     '#DC2626',
+        '--sidebar-hover':      '#2A1010',
+      },
+      dark: {
+        '--bg':                 '#111115',
+        '--surface':            '#18181E',
+        '--surface-hover':      '#202028',
+        '--border':             '#2C2C38',
+        '--text':               '#EAEDF4',
+        '--text-secondary':     '#B88080',
+        '--text-disabled':      '#5A5A6E',
+        '--text-inverse':       '#111115',
+        '--sidebar-bg':         '#100505',
+        '--sidebar-text':       '#C08080',
+        '--sidebar-active':     '#DC2626',
+        '--sidebar-hover':      '#1C0C0C',
+      },
+    },
+  },
+
+  ambar: {
+    key: 'ambar',
+    name: 'Ámbar',
+    description: 'Dorado profundo — ferretería y campo',
+    primary: '#92400E',
+    vars: {
+      light: {
+        '--color-primary':      '#92400E',
+        '--color-primary-text': '#FFFFFF',
+        '--color-secondary':    '#B45309',
+        '--color-accent':       '#FEF3C7',
+        '--bg':                 '#F7F8FA',
+        '--surface-hover':      '#EEF0F4',
+        '--border':             '#E4E6EA',
+        '--text-secondary':     '#4B5563',
+        '--text-disabled':      '#9CA3AF',
+        '--sidebar-bg':         '#1C1205',
+        '--sidebar-text':       '#C0A050',
+        '--sidebar-active':     '#D97706',
+        '--sidebar-hover':      '#2A1C08',
+      },
+      dark: {
+        '--bg':                 '#111115',
+        '--surface':            '#18181E',
+        '--surface-hover':      '#202028',
+        '--border':             '#2C2C38',
+        '--text':               '#EAEDF4',
+        '--text-secondary':     '#A89060',
+        '--text-disabled':      '#5A5A6E',
+        '--text-inverse':       '#111115',
+        '--sidebar-bg':         '#100C03',
+        '--sidebar-text':       '#C0A050',
+        '--sidebar-active':     '#D97706',
+        '--sidebar-hover':      '#1C1408',
+      },
+    },
+  },
+
+  oceano: {
+    key: 'oceano',
+    name: 'Océano',
+    description: 'Azul corporativo y confiable',
+    primary: '#1E40AF',
+    vars: {
+      light: {
+        '--color-primary':      '#1E40AF',
+        '--color-primary-text': '#FFFFFF',
+        '--color-secondary':    '#1D4ED8',
+        '--color-accent':       '#DBEAFE',
+        '--bg':                 '#F7F8FA',
+        '--surface-hover':      '#EEF0F4',
+        '--border':             '#E4E6EA',
+        '--text-secondary':     '#4B5563',
+        '--text-disabled':      '#9CA3AF',
+        '--sidebar-bg':         '#0A1628',
+        '--sidebar-text':       '#7898C8',
+        '--sidebar-active':     '#2563EB',
+        '--sidebar-hover':      '#102040',
+      },
+      dark: {
+        '--bg':                 '#111115',
+        '--surface':            '#18181E',
+        '--surface-hover':      '#202028',
+        '--border':             '#2C2C38',
+        '--text':               '#EAEDF4',
+        '--text-secondary':     '#7090B8',
+        '--text-disabled':      '#5A5A6E',
+        '--text-inverse':       '#111115',
+        '--sidebar-bg':         '#060E1C',
+        '--sidebar-text':       '#7898C8',
+        '--sidebar-active':     '#2563EB',
+        '--sidebar-hover':      '#0C1830',
+      },
+    },
+  },
+
+  rosa: {
+    key: 'rosa',
+    name: 'Rosa',
+    description: 'Berry elegante — moda y belleza',
+    primary: '#9D174D',
+    vars: {
+      light: {
+        '--color-primary':      '#9D174D',
+        '--color-primary-text': '#FFFFFF',
+        '--color-secondary':    '#BE185D',
+        '--color-accent':       '#FCE7F3',
+        '--bg':                 '#F7F8FA',
+        '--surface-hover':      '#EEF0F4',
+        '--border':             '#E4E6EA',
+        '--text-secondary':     '#4B5563',
+        '--text-disabled':      '#9CA3AF',
+        '--sidebar-bg':         '#1C0812',
+        '--sidebar-text':       '#C080A0',
+        '--sidebar-active':     '#BE185D',
+        '--sidebar-hover':      '#280E1E',
+      },
+      dark: {
+        '--bg':                 '#111115',
+        '--surface':            '#18181E',
+        '--surface-hover':      '#202028',
+        '--border':             '#2C2C38',
+        '--text':               '#EAEDF4',
+        '--text-secondary':     '#A87090',
+        '--text-disabled':      '#5A5A6E',
+        '--text-inverse':       '#111115',
+        '--sidebar-bg':         '#10060C',
+        '--sidebar-text':       '#C080A0',
+        '--sidebar-active':     '#BE185D',
+        '--sidebar-hover':      '#1C0C16',
+      },
+    },
+  },
+
+  lima: {
+    key: 'lima',
+    name: 'Lima',
+    description: 'Verde bosque — agrotech y naturaleza',
+    primary: '#166534',
+    vars: {
+      light: {
+        '--color-primary':      '#166534',
+        '--color-primary-text': '#FFFFFF',
+        '--color-secondary':    '#15803D',
+        '--color-accent':       '#DCFCE7',
+        '--bg':                 '#F7F8FA',
+        '--surface-hover':      '#EEF0F4',
+        '--border':             '#E4E6EA',
+        '--text-secondary':     '#4B5563',
+        '--text-disabled':      '#9CA3AF',
+        '--sidebar-bg':         '#0A1A0C',
+        '--sidebar-text':       '#6EAE78',
+        '--sidebar-active':     '#16A34A',
+        '--sidebar-hover':      '#122014',
+      },
+      dark: {
+        '--bg':                 '#111115',
+        '--surface':            '#18181E',
+        '--surface-hover':      '#202028',
+        '--border':             '#2C2C38',
+        '--text':               '#EAEDF4',
+        '--text-secondary':     '#689870',
+        '--text-disabled':      '#5A5A6E',
+        '--text-inverse':       '#111115',
+        '--sidebar-bg':         '#060E08',
+        '--sidebar-text':       '#6EAE78',
+        '--sidebar-active':     '#16A34A',
+        '--sidebar-hover':      '#0E1810',
+      },
+    },
+  },
+
+  naranja: {
+    key: 'naranja',
+    name: 'Naranja',
+    description: 'Terracota cálido — restaurante y retail',
+    primary: '#9A3412',
+    vars: {
+      light: {
+        '--color-primary':      '#9A3412',
+        '--color-primary-text': '#FFFFFF',
+        '--color-secondary':    '#C2410C',
+        '--color-accent':       '#FFEDD5',
+        '--bg':                 '#F7F8FA',
+        '--surface-hover':      '#EEF0F4',
+        '--border':             '#E4E6EA',
+        '--text-secondary':     '#4B5563',
+        '--text-disabled':      '#9CA3AF',
+        '--sidebar-bg':         '#1C0A02',
+        '--sidebar-text':       '#B87848',
+        '--sidebar-active':     '#EA580C',
+        '--sidebar-hover':      '#2A1206',
+      },
+      dark: {
+        '--bg':                 '#111115',
+        '--surface':            '#18181E',
+        '--surface-hover':      '#202028',
+        '--border':             '#2C2C38',
+        '--text':               '#EAEDF4',
+        '--text-secondary':     '#A06848',
+        '--text-disabled':      '#5A5A6E',
+        '--text-inverse':       '#111115',
+        '--sidebar-bg':         '#100600',
+        '--sidebar-text':       '#B87848',
+        '--sidebar-active':     '#EA580C',
+        '--sidebar-hover':      '#1C0E04',
+      },
+    },
+  },
+
+  pizarra: {
+    key: 'pizarra',
+    name: 'Pizarra',
+    description: 'Gris neutro — clásico y profesional',
+    primary: '#334155',
+    vars: {
+      light: {
+        '--color-primary':      '#334155',
+        '--color-primary-text': '#FFFFFF',
+        '--color-secondary':    '#475569',
+        '--color-accent':       '#E2E8F0',
+        '--bg':                 '#F7F8FA',
+        '--surface-hover':      '#EEF0F4',
+        '--border':             '#E4E6EA',
+        '--text-secondary':     '#4B5563',
+        '--text-disabled':      '#9CA3AF',
+        '--sidebar-bg':         '#0F1420',
+        '--sidebar-text':       '#7888A0',
+        '--sidebar-active':     '#64748B',
+        '--sidebar-hover':      '#18202E',
+      },
+      dark: {
+        '--bg':                 '#111115',
+        '--surface':            '#18181E',
+        '--surface-hover':      '#202028',
+        '--border':             '#2C2C38',
+        '--text':               '#EAEDF4',
+        '--text-secondary':     '#8090A0',
+        '--text-disabled':      '#5A5A6E',
+        '--text-inverse':       '#111115',
+        '--sidebar-bg':         '#080C14',
+        '--sidebar-text':       '#7888A0',
+        '--sidebar-active':     '#64748B',
+        '--sidebar-hover':      '#10182A',
+      },
+    },
+  },
+}
+
+export const PALETTES_LIST = Object.values(PALETTES)
+
+export function applyTheme(key: string): void {
+  const palette = PALETTES[key] ?? PALETTES.esmeralda
+
+  const toVars = (record: Record<string, string>) =>
+    Object.entries(record).map(([k, v]) => `  ${k}: ${v};`).join('\n')
+
+  let styleEl = document.getElementById('pycore-theme') as HTMLStyleElement | null
+  if (!styleEl) {
+    styleEl = document.createElement('style')
+    styleEl.id = 'pycore-theme'
+    document.head.appendChild(styleEl)
+  }
+
+  styleEl.textContent = [
+    `:root {\n${toVars(palette.vars.light)}\n}`,
+    `:root.dark {\n${toVars(palette.vars.dark)}\n}`,
+  ].join('\n')
+}

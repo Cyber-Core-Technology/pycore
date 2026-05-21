@@ -1,0 +1,1 @@
+export { AsistenciaFormModal } from './AsistenciaFormModal'
