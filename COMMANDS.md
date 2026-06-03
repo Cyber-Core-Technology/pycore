@@ -289,3 +289,4 @@ docker compose exec backend python manage.py sync_catalogos_sat
 
 # 3. Reinicia el backend para que tome las nuevas variables
 docker compose restart backend
+
