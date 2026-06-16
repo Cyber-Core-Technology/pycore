@@ -22,10 +22,17 @@ function CustomSelect({ id, value, onChange, options, placeholder = '…' }: {
   const [dropRect, setDropRect] = useState({ top: 0, left: 0, width: 0 })
   const triggerRef = useRef<HTMLButtonElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const h = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false)
+      const target = e.target as Node
+      // El menú vive en un portal (document.body), fuera de containerRef: hay que
+      // excluirlo también, o el mousedown sobre una opción cierra el menú antes
+      // de que dispare su onClick y nunca se selecciona.
+      if (containerRef.current?.contains(target)) return
+      if (dropdownRef.current?.contains(target)) return
+      setOpen(false)
     }
     document.addEventListener('mousedown', h)
     return () => document.removeEventListener('mousedown', h)
@@ -63,7 +70,7 @@ function CustomSelect({ id, value, onChange, options, placeholder = '…' }: {
       </button>
 
       {open && createPortal(
-        <div style={{
+        <div ref={dropdownRef} style={{
           position: 'fixed',
           top: dropRect.top,
           left: dropRect.left,
