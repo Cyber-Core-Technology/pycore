@@ -264,6 +264,13 @@
     "ticketTitle": "Ticket de Venta",
     "download": "Descargar",
     "print": "Imprimir",
+    "emailTicket": "Compartir",
+    "emailTicketLabel": "Enviar ticket en PDF por correo",
+    "emailTicketPlaceholder": "correo@cliente.com",
+    "emailTicketSend": "Enviar",
+    "emailTicketHint": "Déjalo vacío para usar el correo registrado del cliente.",
+    "emailTicketSent": "Ticket enviado a {{email}}",
+    "emailTicketError": "No se pudo enviar el ticket. Inténtalo de nuevo.",
     "cancelReasonPlaceholder": "Ej: Cliente solicitó cancelación, error en pedido...",
     "paymentMethods": {
       "cash": "Efectivo",

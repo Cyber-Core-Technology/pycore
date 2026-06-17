@@ -5,10 +5,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from apps.sales.services import VentaService
+from apps.sales.services import VentaService, TicketPDFService, TicketEmailService
 from apps.sales.serializers import (
     VentaSerializer, VentaLightSerializer,
     CrearVentaRequestSerializer, CancelarVentaRequestSerializer,
+    EnviarTicketRequestSerializer,
 )
 from apps.sales.exceptions import SalesException
 
@@ -73,6 +74,44 @@ class VentaViewSet(ViewSet):
             return Response(VentaSerializer(venta).data)
         except SalesException as e:
             return self._error(e)
+
+    @action(detail=True, methods=['post'], url_path='enviar-ticket')
+    def enviar_ticket(self, request, pk=None):
+        """
+        POST /api/v1/sales/ventas/{id}/enviar-ticket/
+        Genera el PDF del ticket y lo envía por correo al cliente.
+        Body: {"email": "cliente@correo.com"}  (opcional; si se omite se usa
+        el correo registrado del cliente de la venta).
+        """
+        try:
+            venta = self._service(request).obtener_venta(int(pk))
+        except SalesException as e:
+            return self._error(e)
+
+        ser = EnviarTicketRequestSerializer(data=request.data)
+        if not ser.is_valid():
+            return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        email = (ser.validated_data.get('email') or '').strip()
+        if not email and venta.cliente:
+            email = (venta.cliente.email or '').strip()
+        if not email:
+            return Response(
+                {'error': 'No se proporcionó un correo y el cliente no tiene uno registrado.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            pdf_bytes = TicketPDFService.generar(venta)
+            TicketEmailService.enviar(venta, email, pdf_bytes)
+        except Exception as exc:
+            logger.warning('Error al enviar ticket de venta %s: %s', venta.folio, exc)
+            return Response(
+                {'error': 'No se pudo enviar el correo. Verifica la configuración de correo e inténtalo de nuevo.'},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        return Response({'enviado': True, 'email': email})
 
     @action(detail=True, methods=['get'], url_path='devoluciones')
     def devoluciones(self, request, pk=None):

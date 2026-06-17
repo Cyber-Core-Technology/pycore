@@ -198,6 +198,11 @@ class CancelarVentaRequestSerializer(serializers.Serializer):
     motivo = serializers.CharField(required=False, default='', allow_blank=True)
 
 
+class EnviarTicketRequestSerializer(serializers.Serializer):
+    """Email opcional; si no se envía, se usa el del cliente de la venta."""
+    email = serializers.EmailField(required=False, allow_blank=True)
+
+
 class ItemDevolucionRequestSerializer(serializers.Serializer):
     id_detalle_venta = serializers.IntegerField()
     cantidad = serializers.DecimalField(

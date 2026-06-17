@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tu ticket de compra</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F2F8F6;font-family:'Segoe UI',Arial,sans-serif;color:#1C1F24;">
+
+  <!-- Wrapper -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F2F8F6;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+
+        <!-- Card -->
+        <table role="presentation" width="100%" style="max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(26,58,51,0.10);">
+
+          <!-- ── HEADER ── -->
+          <tr>
+            <td style="background-color:#1A3A33;padding:28px 36px;text-align:center;">
+              <img src="{{ logo_url }}" alt="PyCore ERP" height="48"
+                   style="display:inline-block;max-height:48px;width:auto;">
+              <p style="margin:10px 0 0;color:#7AE8C3;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;">
+                El núcleo de tu negocio
+              </p>
+            </td>
+          </tr>
+
+          <!-- ── SALUDO ── -->
+          <tr>
+            <td style="padding:40px 40px 0;">
+              <h1 style="margin:0 0 8px;font-size:26px;font-weight:800;color:#1A3A33;line-height:1.2;">
+                ¡Gracias por tu compra{% if nombre %}, {{ nombre }}{% endif %}!
+              </h1>
+              <p style="margin:0;font-size:14px;color:#18AE91;font-weight:600;letter-spacing:0.5px;">
+                {{ empresa_nombre }}
+              </p>
+            </td>
+          </tr>
+
+          <!-- ── CUERPO ── -->
+          <tr>
+            <td style="padding:24px 40px 0;">
+              <p style="margin:0;font-size:15px;color:#374151;line-height:1.75;">
+                Adjuntamos el ticket de tu compra en formato PDF. A continuación encontrarás
+                un resumen de la operación. ¡Gracias por tu preferencia!
+              </p>
+            </td>
+          </tr>
+
+          <!-- ── RESUMEN DE LA COMPRA ── -->
+          <tr>
+            <td style="padding:28px 40px 0;">
+              <p style="margin:0 0 12px;font-size:13px;font-weight:700;color:#4A5D57;text-transform:uppercase;letter-spacing:1px;">
+                Resumen de tu compra
+              </p>
+              <table role="presentation" width="100%"
+                     style="background:#F2F8F6;border:1.5px solid #DCE7E3;border-radius:8px;overflow:hidden;border-collapse:separate;">
+                <tr>
+                  <td style="padding:12px 20px;font-size:13px;color:#4A5D57;">Folio</td>
+                  <td style="padding:12px 20px;font-size:14px;font-weight:700;color:#1A3A33;font-family:'Courier New',monospace;text-align:right;">{{ folio }}</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 20px;font-size:13px;color:#4A5D57;border-top:1px solid #DCE7E3;">Fecha</td>
+                  <td style="padding:12px 20px;font-size:14px;color:#1A3A33;text-align:right;border-top:1px solid #DCE7E3;">{{ fecha }}</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 20px;font-size:13px;color:#4A5D57;border-top:1px solid #DCE7E3;">Sucursal</td>
+                  <td style="padding:12px 20px;font-size:14px;color:#1A3A33;text-align:right;border-top:1px solid #DCE7E3;">{{ sucursal }}</td>
+                </tr>
+                {% if metodo_pago %}
+                <tr>
+                  <td style="padding:12px 20px;font-size:13px;color:#4A5D57;border-top:1px solid #DCE7E3;">Método de pago</td>
+                  <td style="padding:12px 20px;font-size:14px;color:#1A3A33;text-align:right;border-top:1px solid #DCE7E3;">{{ metodo_pago }}</td>
+                </tr>
+                {% endif %}
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── PRODUCTOS ── -->
+          <tr>
+            <td style="padding:24px 40px 0;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+                <tr>
+                  <td style="padding:0 0 8px;font-size:11px;font-weight:700;color:#9BAF80;text-transform:uppercase;letter-spacing:0.8px;">Producto</td>
+                  <td style="padding:0 0 8px;font-size:11px;font-weight:700;color:#9BAF80;text-transform:uppercase;letter-spacing:0.8px;text-align:center;">Cant</td>
+                  <td style="padding:0 0 8px;font-size:11px;font-weight:700;color:#9BAF80;text-transform:uppercase;letter-spacing:0.8px;text-align:right;">Importe</td>
+                </tr>
+                {% for item in detalles %}
+                <tr>
+                  <td style="padding:8px 0;font-size:13px;color:#1A3A33;border-top:1px solid #EEF4F1;">{{ item.nombre }}</td>
+                  <td style="padding:8px 0;font-size:13px;color:#4A5D57;text-align:center;border-top:1px solid #EEF4F1;">{{ item.cantidad }}</td>
+                  <td style="padding:8px 0;font-size:13px;font-weight:600;color:#1A3A33;text-align:right;border-top:1px solid #EEF4F1;">{{ item.total }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── TOTALES ── -->
+          <tr>
+            <td style="padding:18px 40px 0;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding:4px 0;font-size:13px;color:#4A5D57;">Subtotal</td>
+                  <td style="padding:4px 0;font-size:13px;color:#4A5D57;text-align:right;">{{ subtotal }}</td>
+                </tr>
+                {% if descuento %}
+                <tr>
+                  <td style="padding:4px 0;font-size:13px;color:#4A5D57;">Descuento</td>
+                  <td style="padding:4px 0;font-size:13px;color:#C0392B;text-align:right;">- {{ descuento }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td style="padding:4px 0;font-size:13px;color:#4A5D57;">IVA</td>
+                  <td style="padding:4px 0;font-size:13px;color:#4A5D57;text-align:right;">{{ impuestos }}</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 0 0;font-size:17px;font-weight:800;color:#1A3A33;border-top:2px solid #1A3A33;">TOTAL</td>
+                  <td style="padding:12px 0 0;font-size:18px;font-weight:800;color:#18AE91;text-align:right;border-top:2px solid #1A3A33;">{{ total }}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── DIVIDER ── -->
+          <tr>
+            <td style="padding:32px 40px 0;">
+              <hr style="border:none;border-top:1.5px solid #DCE7E3;margin:0;">
+            </td>
+          </tr>
+
+          <!-- ── ADJUNTO ── -->
+          <tr>
+            <td style="padding:24px 40px 0;">
+              <p style="margin:0 0 14px;font-size:13px;font-weight:700;color:#4A5D57;text-transform:uppercase;letter-spacing:1px;">
+                Documento adjunto
+              </p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td width="36" valign="top" style="padding-right:12px;">
+                    <div style="width:36px;height:36px;background:#F2F8F6;border:1.5px solid #DCE7E3;border-radius:8px;text-align:center;line-height:36px;font-size:18px;">
+                      🧾
+                    </div>
+                  </td>
+                  <td valign="top">
+                    <p style="margin:0;font-size:14px;font-weight:600;color:#1A3A33;">Ticket de compra {{ folio }}</p>
+                    <p style="margin:2px 0 0;font-size:12px;color:#4A5D57;">Comprobante de tu compra en formato PDF.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          {% if contacto_email or contacto_tel %}
+          <!-- ── DIVIDER ── -->
+          <tr>
+            <td style="padding:32px 40px 0;">
+              <hr style="border:none;border-top:1.5px solid #DCE7E3;margin:0;">
+            </td>
+          </tr>
+
+          <!-- ── CONTACTO ── -->
+          <tr>
+            <td style="padding:24px 40px 32px;">
+              <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#1A3A33;">
+                ¿Tienes alguna duda sobre tu compra?
+              </p>
+              <p style="margin:0 0 14px;font-size:13px;color:#4A5D57;line-height:1.7;">
+                Estamos para ayudarte. Contáctanos por cualquiera de estos medios.
+              </p>
+              <table role="presentation" cellpadding="0" cellspacing="0">
+                <tr>
+                  {% if contacto_email %}
+                  <td style="padding-right:28px;">
+                    <span style="font-size:13px;color:#4A5D57;">
+                      ✉&nbsp;
+                      <a href="mailto:{{ contacto_email }}" style="color:#18AE91;text-decoration:none;font-weight:600;">{{ contacto_email }}</a>
+                    </span>
+                  </td>
+                  {% endif %}
+                  {% if contacto_tel %}
+                  <td>
+                    <span style="font-size:13px;color:#4A5D57;">
+                      ☎&nbsp;
+                      <a href="tel:{{ contacto_tel }}" style="color:#18AE91;text-decoration:none;font-weight:600;">{{ contacto_tel }}</a>
+                    </span>
+                  </td>
+                  {% endif %}
+                </tr>
+              </table>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td style="height:32px;"></td></tr>
+          {% endif %}
+
+          <!-- ── FOOTER ── -->
+          <tr>
+            <td style="background-color:#1A3A33;padding:20px 36px;text-align:center;">
+              <p style="margin:0 0 4px;font-size:12px;color:#A7CFC5;">
+                {{ empresa_nombre }} — Enviado con PyCore ERP
+              </p>
+              <p style="margin:0;font-size:11px;color:#668886;">
+                Este correo fue enviado automáticamente. Por favor no respondas a esta dirección.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+        <!-- /Card -->
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

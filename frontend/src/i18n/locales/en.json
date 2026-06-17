@@ -264,6 +264,13 @@
     "ticketTitle": "Sale Ticket",
     "download": "Download",
     "print": "Print",
+    "emailTicket": "Share",
+    "emailTicketLabel": "Email ticket as PDF",
+    "emailTicketPlaceholder": "customer@email.com",
+    "emailTicketSend": "Send",
+    "emailTicketHint": "Leave empty to use the customer's registered email.",
+    "emailTicketSent": "Ticket sent to {{email}}",
+    "emailTicketError": "Could not send the ticket. Please try again.",
     "cancelReasonPlaceholder": "E.g: Customer requested cancellation, order error...",
     "paymentMethods": {
       "cash": "Cash",

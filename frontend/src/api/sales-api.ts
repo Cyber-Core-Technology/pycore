@@ -17,4 +17,12 @@ export const salesApi = {
 
   cancelar: (id: string, motivo: string) =>
     api.post<Venta>(`/api/v1/sales/ventas/${id}/cancelar/`, { motivo }).then((r) => r.data),
+
+  enviarTicket: (id: string | number, email: string) =>
+    api
+      .post<{ enviado: boolean; email: string }>(
+        `/api/v1/sales/ventas/${id}/enviar-ticket/`,
+        { email },
+      )
+      .then((r) => r.data),
 }
