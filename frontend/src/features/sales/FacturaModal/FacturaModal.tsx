@@ -325,7 +325,7 @@ export function FacturaModal({ ventaId, folio, onClose }: Props) {
                   required
                   maxLength={13}
                   value={rfc}
-                  onChange={(e) => setRfc(e.target.value.toUpperCase().replace(/[^A-Z0-9&]/g, ''))}
+                  onChange={(e) => setRfc(e.target.value.toUpperCase().replace(/[^A-ZÑ0-9&]/g, ''))}
                   placeholder={t('facturaModal.rfcPlaceholder')}
                   style={INPUT_STYLE}
                 />
