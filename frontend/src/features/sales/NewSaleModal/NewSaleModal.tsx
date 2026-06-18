@@ -11,6 +11,7 @@ import { X, Trash2, Search, ChevronDown, ScanBarcode } from 'lucide-react'
 import { BarcodeScannerModal } from '@/components/common/BarcodeScanner'
 import { QuickAddProductModal } from '@/components/common/BarcodeScanner/QuickAddProductModal'
 import { useBarcodeScanner } from '@/hooks/useInventory'
+import { useScannerGun } from '@/hooks/useScannerGun'
 import { inventoryApi } from '@/api/inventory-api'
 import type { BarcodeLookupResult, Variante } from '@/types/inventory.types'
 import type { DetalleVentaInput, MetodoPago, Venta } from '@/types/sales.types'
@@ -219,6 +220,16 @@ export function NewSaleModal({ onClose, onSuccess }: Props) {
       }])
     }
   }
+
+  // Pistola de código de barras (lector HID): funciona sin importar dónde esté
+  // el foco. Se desactiva cuando hay un sub-modal abierto para no interferir.
+  useScannerGun({
+    enabled: !showScanner && !quickAdd && !variantePicker,
+    onScan: async (codigo) => {
+      const result = await buscarBarcode(codigo)
+      if (result) handleBarcodeFound(result)
+    },
+  })
 
   const handleQuickAddSaved = (producto: any) => {
     setQuickAdd(null)
