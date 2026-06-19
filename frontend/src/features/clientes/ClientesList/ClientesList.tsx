@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { Plus, Search, Filter, Eye, Pencil, Trash2, RefreshCw, Store } from 'lucide-react'
+import { Plus, Search, Filter, Eye, Pencil, Trash2, RefreshCw, Store, FileUp } from 'lucide-react'
 import { useClientes, useEliminarCliente } from '@/hooks/useClientes'
 import { usePermissions } from '@/hooks/usePermissions'
 import type { Cliente, ClienteLista, ClienteFiltros, TipoCliente } from '@/types/terceros.types'
 import { ClienteFormModal } from '../ClienteFormModal/ClienteFormModal'
 import { ClienteDetailDrawer } from '../ClienteDetailDrawer/ClienteDetailDrawer'
+import { ImportModal } from '@/components/common/ImportModal/ImportModal'
+import { CLIENTE_IMPORT_COLUMNS } from '../importColumns'
+import { clientesApi } from '@/api/terceros-api'
 
 const TIPO_COLOR: Record<string, { bg: string; color: string }> = {
   minorista:    { bg: 'var(--color-success-bg)', color: 'var(--color-success)' },
@@ -73,6 +76,7 @@ export function ClientesList() {
   const [selectedId,    setSelectedId]    = useState<string | null>(null)
   const [selectedOrigen, setSelectedOrigen] = useState<'erp' | 'storefront'>('erp')
   const [showForm,      setShowForm]      = useState(false)
+  const [showImport,    setShowImport]    = useState(false)
   const [editTarget,    setEditTarget]    = useState<Cliente | null>(null)
   const [deleteTarget,  setDeleteTarget]  = useState<ClienteLista | null>(null)
 
@@ -120,6 +124,21 @@ export function ClientesList() {
           cliente={editTarget}
           onClose={() => { setShowForm(false); setEditTarget(null) }}
           onSuccess={() => { setShowForm(false); setEditTarget(null); refetch() }}
+        />
+      )}
+
+      {showImport && (
+        <ImportModal
+          titulo="Importar clientes"
+          entidadSingular="cliente"
+          entidadPlural="clientes"
+          uniqueKey="nombre_comercial"
+          columns={CLIENTE_IMPORT_COLUMNS}
+          descargarPlantilla={clientesApi.descargarPlantilla}
+          previsualizar={clientesApi.previsualizarImportacion}
+          importar={clientesApi.importarDesdeFilas}
+          onClose={() => setShowImport(false)}
+          onSuccess={() => refetch()}
         />
       )}
 
@@ -211,6 +230,19 @@ export function ClientesList() {
             >
               <RefreshCw size={15} />
             </button>
+            {hasPermission('clientes.crear') && (
+              <button
+                onClick={() => setShowImport(true)}
+                title="Importar clientes desde archivo"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  padding: '8px 12px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                  background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-secondary)', cursor: 'pointer',
+                }}
+              >
+                <FileUp size={14} /> Importar
+              </button>
+            )}
             {hasPermission('clientes.crear') && (
               <button
                 onClick={() => { setEditTarget(null); setShowForm(true) }}

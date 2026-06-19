@@ -1,10 +1,13 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from apps.terceros.serializers import ClienteSerializer, ClienteListSerializer
 from apps.terceros.services import ClienteService
+from apps.terceros.import_specs import cliente_importer
+from apps.terceros.import_utils import parsear_archivo_xlsx_csv, MAX_ROWS
 
 service = ClienteService()
 
@@ -80,3 +83,54 @@ class ClienteViewSet(viewsets.ViewSet):
     def destroy(self, request, pk=None):
         service.eliminar(self._empresa(request), pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    # ── Importación masiva ───────────────────────────────────────────────────
+    @action(detail=False, methods=['get'], url_path='plantilla-importacion')
+    def plantilla_importacion(self, request):
+        """GET /api/v1/terceros/clientes/plantilla-importacion/ — descarga la plantilla .xlsx"""
+        return cliente_importer().generar_plantilla()
+
+    @action(detail=False, methods=['post'], url_path='previsualizar-importacion',
+            parser_classes=[MultiPartParser])
+    def previsualizar_importacion(self, request):
+        """POST — parsea y valida el archivo sin crear registros."""
+        archivo = request.FILES.get('archivo')
+        if not archivo:
+            return Response({'detail': 'No se recibió ningún archivo.'}, status=status.HTTP_400_BAD_REQUEST)
+        filas_raw = parsear_archivo_xlsx_csv(archivo)
+        if isinstance(filas_raw, Response):
+            return filas_raw
+        if len(filas_raw) > MAX_ROWS:
+            return Response(
+                {'detail': f'El archivo excede el límite de {MAX_ROWS} filas por importación.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return Response(cliente_importer().previsualizar(self._empresa(request), filas_raw))
+
+    @action(detail=False, methods=['post'], url_path='importar',
+            parser_classes=[MultiPartParser, JSONParser])
+    def importar(self, request):
+        """POST — importa clientes desde archivo (multipart) o filas JSON pre-editadas."""
+        modo = request.data.get('modo', 'atomico')
+        json_filas = request.data.get('filas')
+        if isinstance(json_filas, list):
+            filas_raw = json_filas
+        else:
+            archivo = request.FILES.get('archivo')
+            if not archivo:
+                return Response(
+                    {'detail': 'Se requiere el campo "archivo" o un cuerpo JSON con "filas".'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            filas_raw = parsear_archivo_xlsx_csv(archivo)
+            if isinstance(filas_raw, Response):
+                return filas_raw
+
+        if not filas_raw:
+            return Response({'detail': 'No hay filas para importar.'}, status=status.HTTP_400_BAD_REQUEST)
+        if len(filas_raw) > MAX_ROWS:
+            return Response({'detail': f'El lote excede el límite de {MAX_ROWS} filas.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        data, http_status = cliente_importer().importar(self._empresa(request), filas_raw, modo)
+        return Response(data, status=http_status)

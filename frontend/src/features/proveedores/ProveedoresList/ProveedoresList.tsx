@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Plus, Search, Filter, Eye, Pencil, Trash2, RefreshCw } from 'lucide-react'
+import { Plus, Search, Filter, Eye, Pencil, Trash2, RefreshCw, FileUp } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useProveedores, useEliminarProveedor } from '@/hooks/useProveedores'
 import { usePermissions } from '@/hooks/usePermissions'
 import type { Proveedor, ProveedorLista, ProveedorFiltros, TipoProveedor } from '@/types/proveedores.types'
 import { ProveedorFormModal } from '../ProveedorFormModal/ProveedorFormModal'
 import { ProveedorDetailDrawer } from '../ProveedorDetailDrawer/ProveedorDetailDrawer'
+import { ImportModal } from '@/components/common/ImportModal/ImportModal'
+import { PROVEEDOR_IMPORT_COLUMNS } from '../importColumns'
+import { proveedoresApi } from '@/api/proveedores-api'
 
 const TIPO_COLOR: Record<string, { bg: string; color: string }> = {
   materia_prima: { bg: 'var(--color-warning-bg)', color: 'var(--color-warning)' },
@@ -43,6 +46,7 @@ export function ProveedoresList() {
   const [search,       setSearch]       = useState('')
   const [selectedId,   setSelectedId]   = useState<string | null>(null)
   const [showForm,     setShowForm]     = useState(false)
+  const [showImport,   setShowImport]   = useState(false)
   const [editTarget,   setEditTarget]   = useState<Proveedor | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<ProveedorLista | null>(null)
 
@@ -90,6 +94,21 @@ export function ProveedoresList() {
           proveedor={editTarget}
           onClose={() => { setShowForm(false); setEditTarget(null) }}
           onSuccess={() => { setShowForm(false); setEditTarget(null); refetch() }}
+        />
+      )}
+
+      {showImport && (
+        <ImportModal
+          titulo="Importar proveedores"
+          entidadSingular="proveedor"
+          entidadPlural="proveedores"
+          uniqueKey="nombre_comercial"
+          columns={PROVEEDOR_IMPORT_COLUMNS}
+          descargarPlantilla={proveedoresApi.descargarPlantilla}
+          previsualizar={proveedoresApi.previsualizarImportacion}
+          importar={proveedoresApi.importarDesdeFilas}
+          onClose={() => setShowImport(false)}
+          onSuccess={() => refetch()}
         />
       )}
 
@@ -179,6 +198,19 @@ export function ProveedoresList() {
             >
               <RefreshCw size={15} />
             </button>
+            {hasPermission('proveedores.crear') && (
+              <button
+                onClick={() => setShowImport(true)}
+                title="Importar proveedores desde archivo"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  padding: '8px 12px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                  background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-secondary)', cursor: 'pointer',
+                }}
+              >
+                <FileUp size={14} /> Importar
+              </button>
+            )}
             {hasPermission('proveedores.crear') && (
               <button
                 onClick={() => { setEditTarget(null); setShowForm(true) }}

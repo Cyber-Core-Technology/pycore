@@ -1,5 +1,6 @@
 import { api } from './axios-config'
 import type { Proveedor, ProveedorLista, ProveedorFormData, ProveedorFiltros } from '@/types/proveedores.types'
+import type { ImportFila, ImportPreviewResultado, ImportResultado } from '@/components/common/ImportModal/ImportModal'
 
 interface Paginated<T> { count: number; results: T[]; next: string | null; previous: string | null }
 
@@ -24,4 +25,28 @@ export const proveedoresApi = {
 
   eliminar: (id: string) =>
     api.delete(`/api/v1/terceros/proveedores/${id}/`),
+
+  // ── Importación masiva ─────────────────────────────────────────────────────
+  previsualizarImportacion: (archivo: File): Promise<ImportPreviewResultado> => {
+    const fd = new FormData()
+    fd.append('archivo', archivo)
+    return api.post('/api/v1/terceros/proveedores/previsualizar-importacion/', fd, {
+      headers: { 'Content-Type': undefined as unknown as string },
+    }).then((r) => r.data)
+  },
+
+  importarDesdeFilas: (filas: ImportFila[], modo: 'atomico' | 'parcial'): Promise<ImportResultado> =>
+    api.post('/api/v1/terceros/proveedores/importar/', { modo, filas }).then((r) => r.data),
+
+  descargarPlantilla: async (): Promise<void> => {
+    const r = await api.get('/api/v1/terceros/proveedores/plantilla-importacion/', { responseType: 'blob' })
+    const url = window.URL.createObjectURL(new Blob([r.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'plantilla_proveedores.xlsx')
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+  },
 }
