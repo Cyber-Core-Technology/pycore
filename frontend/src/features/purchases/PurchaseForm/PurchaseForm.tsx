@@ -81,7 +81,18 @@ export function PurchaseForm({ onClose, onSuccess }: Props) {
       if (item._key !== key) return item
       if (campo === 'id_producto') {
         const prod = productos.find((p: any) => p.id === valor)
-        return { ...item, id_producto: valor, nombre_producto: prod?.nombre ?? '' }
+        if (!prod) return { ...item, id_producto: valor, nombre_producto: '' }
+        // Hereda el precio de compra y la tasa de impuesto del producto en inventario
+        // (ambos siguen siendo editables manualmente por línea)
+        const precioCompra = prod.precio_compra != null ? String(prod.precio_compra) : item.precio_unitario
+        const impuesto     = prod.impuesto_tasa != null ? String(prod.impuesto_tasa) : '0'
+        return {
+          ...item,
+          id_producto:     valor,
+          nombre_producto: prod.nombre ?? '',
+          precio_unitario: precioCompra,
+          impuesto_tasa:   impuesto,
+        }
       }
       return { ...item, [campo]: valor }
     }))
@@ -93,14 +104,13 @@ export function PurchaseForm({ onClose, onSuccess }: Props) {
 
   const handleSubmit = async () => {
     setError('')
-    if (!idProveedor)            return setError(t('purchaseForm.errorProveedor'))
     if (!sucursal?.id_sucursal)  return setError(t('purchaseForm.errorSucursal'))
     if (items.length === 0)      return setError(t('purchaseForm.errorProducts'))
     if (items.some((i) => !i.id_producto)) return setError(t('purchaseForm.errorProductosSelected'))
 
     try {
       await crear.mutateAsync({
-        id_proveedor:      idProveedor,
+        id_proveedor:      idProveedor || null,
         id_sucursal:       sucursal.id_sucursal,
         fecha_entrega:     fechaEntrega      || null,
         fecha_vencimiento: fechaVencimiento  || null,
@@ -149,15 +159,15 @@ export function PurchaseForm({ onClose, onSuccess }: Props) {
         {/* Cuerpo */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 14, minHeight: 0 }}>
 
-          {/* Proveedor */}
+          {/* Proveedor (opcional) */}
           <div>
-            <label style={labelStyle}>{t('purchaseForm.labelProveedor')}</label>
+            <label style={labelStyle}>{t('purchaseForm.labelProveedor')} ({t('common.optional', { defaultValue: 'opcional' })})</label>
             <select
               value={idProveedor}
               onChange={(e) => setIdProveedor(e.target.value)}
               style={inputStyle}
             >
-              <option value="">{t('purchaseForm.selectProveedor')}</option>
+              <option value="">{t('purchaseForm.sinProveedor', { defaultValue: 'Sin proveedor' })}</option>
               {proveedores.map((p: any) => (
                 <option key={p.id} value={p.id}>
                   {p.nombre_comercial || p.razon_social}

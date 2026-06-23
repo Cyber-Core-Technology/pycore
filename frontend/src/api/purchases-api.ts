@@ -53,4 +53,18 @@ export const purchasesApi = {
     const r = await api.post(`/api/v1/purchases/compras/${idCompra}/recibir/`, data)
     return r.data
   },
+
+  async subirComprobante(idCompra: number, archivo: File): Promise<Compra> {
+    const fd = new FormData()
+    fd.append('comprobante', archivo)
+    const r = await api.post(`/api/v1/purchases/compras/${idCompra}/comprobantes/`, fd, {
+      headers: { 'Content-Type': undefined as unknown as string },
+    })
+    return r.data
+  },
+
+  async eliminarComprobante(idCompra: number, comprobanteId: number): Promise<Compra> {
+    const r = await api.delete(`/api/v1/purchases/compras/${idCompra}/comprobantes/${comprobanteId}/`)
+    return r.data
+  },
 }

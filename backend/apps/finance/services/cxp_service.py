@@ -46,9 +46,10 @@ class CxPService:
         """
         proveedor = compra.proveedor
 
+        dias_credito = (proveedor.dias_credito if proveedor else 0) or 30
         fecha_vencimiento = (
             compra.fecha_vencimiento or
-            timezone.now().date() + timedelta(days=proveedor.dias_credito or 30)
+            timezone.now().date() + timedelta(days=dias_credito)
         )
 
         cxp = self.repo.create(

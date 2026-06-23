@@ -143,7 +143,7 @@ class CompraService:
         if not items:
             raise CompraEmptyDetallesException()
 
-        proveedor = self._get_proveedor(data['id_proveedor'])
+        proveedor = self._get_proveedor(data['id_proveedor']) if data.get('id_proveedor') else None
         sucursal = self._get_sucursal(data['id_sucursal'])
 
         compra = self.compra_repo.create(

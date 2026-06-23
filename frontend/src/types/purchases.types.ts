@@ -38,7 +38,7 @@ export interface DetalleCompra {
 export interface CompraLight {
   id_compra:       number       // AutoField — se usa en la URL
   folio:           string
-  nombre_proveedor: string
+  nombre_proveedor: string | null
   nombre_sucursal:  string
   fecha_compra:    string
   fecha_entrega:   string | null
@@ -48,9 +48,17 @@ export interface CompraLight {
   metodo_pago:     MetodoPagoCompra | null
 }
 
+export interface CompraComprobante {
+  id:                number
+  nombre_original:   string
+  archivo_url:       string | null
+  subido_por_nombre: string | null
+  created_at:        string
+}
+
 export interface Compra extends CompraLight {
   uuid:            string
-  id_proveedor:    string       // UUID
+  id_proveedor:    string | null   // UUID — opcional
   id_sucursal:     string       // UUID
   subtotal:        string
   descuento:       string
@@ -59,6 +67,7 @@ export interface Compra extends CompraLight {
   numero_factura:  string
   orden_compra:    string
   notas:           string
+  comprobantes:    CompraComprobante[]
   detalles:        DetalleCompra[]
   created_at:      string
   updated_at:      string
@@ -76,7 +85,7 @@ export interface ItemCompraRequest {
 }
 
 export interface CrearCompraRequest {
-  id_proveedor:     string      // UUID
+  id_proveedor?:    string | null   // UUID — opcional
   id_sucursal:      string      // UUID
   fecha_entrega?:   string | null
   fecha_vencimiento?: string | null

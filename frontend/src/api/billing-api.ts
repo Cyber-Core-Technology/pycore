@@ -15,6 +15,10 @@ export interface Subscription {
   plan: SubscriptionPlan | null
   status: 'active' | 'past_due' | 'canceled' | 'unpaid' | 'incomplete' | 'elite' | 'no_subscription'
   is_active: boolean
+  /** Nº de sucursales activas que se están facturando */
+  sucursales_activas?: number
+  /** Total mensual = precio por sucursal × sucursales activas */
+  total_mensual?: string | null
   current_period_start: string | null
   current_period_end: string | null
   created_at: string

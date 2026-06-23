@@ -30,6 +30,8 @@ class CuentaPorPagar(models.Model):
         'terceros.Proveedor',
         on_delete=models.PROTECT,
         related_name='cuentas_por_pagar',
+        null=True,
+        blank=True,
     )
     compra = models.OneToOneField(
         'purchases.Compra',

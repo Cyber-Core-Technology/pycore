@@ -76,10 +76,10 @@ class CrearCxCManualRequestSerializer(serializers.Serializer):
 
 class CxPSerializer(serializers.ModelSerializer):
     nombre_proveedor = serializers.CharField(
-        source='proveedor.nombre_comercial', read_only=True
+        source='proveedor.nombre_comercial', read_only=True, default=None,
     )
     folio_compra = serializers.CharField(
-        source='compra.folio', read_only=True
+        source='compra.folio', read_only=True, default=None,
     )
     esta_vencida = serializers.BooleanField(read_only=True)
 

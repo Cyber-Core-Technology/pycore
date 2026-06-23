@@ -2,6 +2,12 @@ import uuid
 from django.db import models
 
 
+def comprobante_upload_to(instance, filename):
+    """Conservada solo por compatibilidad con migraciones históricas (0002/0003).
+    El comprobante ahora vive en el modelo CompraComprobante."""
+    return f'compras/comprobantes/{instance.empresa_id}/{filename}'
+
+
 class Compra(models.Model):
 
     ESTADO_CHOICES = [
@@ -34,6 +40,8 @@ class Compra(models.Model):
         'terceros.Proveedor',
         on_delete=models.PROTECT,
         related_name='compras',
+        null=True,
+        blank=True,
     )
     sucursal = models.ForeignKey(
         'core.Sucursal',

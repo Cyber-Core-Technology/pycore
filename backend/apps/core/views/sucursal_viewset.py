@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 from apps.core.repositories import SucursalRepository, EmpresaRepository
 from apps.core.serializers import SucursalSerializer, SucursalCreateSerializer
+from apps.billing.services import StripeService, can_add_branch, can_remove_branch
 
 
 class SucursalViewSet(ViewSet):
@@ -22,10 +23,18 @@ class SucursalViewSet(ViewSet):
         empresa = request.tenant
         if not empresa:
             return Response({'error': 'Tenant requerido.'}, status=status.HTTP_400_BAD_REQUEST)
+        permitido, motivo = can_add_branch(empresa)
+        if not permitido:
+            return Response({'detail': motivo}, status=status.HTTP_402_PAYMENT_REQUIRED)
+
         serializer = SucursalCreateSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         sucursal = SucursalRepository.create(empresa, serializer.validated_data)
+
+        # Sube el quantity en Stripe; cobra prorrateado los días restantes del ciclo.
+        StripeService.sync_branch_quantity(empresa, proration_behavior='create_prorations')
+
         return Response(SucursalSerializer(sucursal).data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None):
@@ -56,5 +65,14 @@ class SucursalViewSet(ViewSet):
                 {'error': 'No se puede eliminar la sucursal principal.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+        permitido, motivo = can_remove_branch(sucursal.empresa)
+        if not permitido:
+            return Response({'error': motivo}, status=status.HTTP_400_BAD_REQUEST)
+
         SucursalRepository.soft_delete_sucursal(sucursal)
+
+        # Baja el quantity en Stripe; sin prorrateo: deja de contar el próximo ciclo.
+        StripeService.sync_branch_quantity(sucursal.empresa, proration_behavior='none')
+
         return Response(status=status.HTTP_204_NO_CONTENT)

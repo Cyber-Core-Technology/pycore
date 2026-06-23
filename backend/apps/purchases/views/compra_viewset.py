@@ -2,6 +2,7 @@ import logging
 
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
@@ -44,6 +45,12 @@ class CompraViewSet(ViewSet):
     def _error(self, exc: PurchasesException) -> Response:
         return Response({'error': exc.message}, status=exc.status_code)
 
+    def _serialize(self, compra, request, status_code=status.HTTP_200_OK) -> Response:
+        return Response(
+            CompraSerializer(compra, context={'request': request}).data,
+            status=status_code,
+        )
+
     # ── CRUD ──────────────────────────────────────────────────────────────────
 
     def list(self, request):
@@ -64,14 +71,14 @@ class CompraViewSet(ViewSet):
             return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
         try:
             compra = self._service(request).crear_compra(ser.validated_data)
-            return Response(CompraSerializer(compra).data, status=status.HTTP_201_CREATED)
+            return self._serialize(compra, request, status.HTTP_201_CREATED)
         except PurchasesException as e:
             return self._error(e)
 
     def retrieve(self, request, pk=None):
         try:
             compra = self._service(request).obtener_compra(int(pk))
-            return Response(CompraSerializer(compra).data)
+            return self._serialize(compra, request)
         except PurchasesException as e:
             return self._error(e)
 
@@ -81,7 +88,7 @@ class CompraViewSet(ViewSet):
             return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
         try:
             compra = self._service(request).actualizar_compra(int(pk), ser.validated_data)
-            return Response(CompraSerializer(compra).data)
+            return self._serialize(compra, request)
         except PurchasesException as e:
             return self._error(e)
 
@@ -92,7 +99,7 @@ class CompraViewSet(ViewSet):
         """POST /purchases/compras/{id}/confirmar/  →  borrador → activo"""
         try:
             compra = self._service(request).confirmar_compra(int(pk))
-            return Response(CompraSerializer(compra).data)
+            return self._serialize(compra, request)
         except PurchasesException as e:
             return self._error(e)
 
@@ -106,7 +113,7 @@ class CompraViewSet(ViewSet):
             compra = self._service(request).cancelar_compra(
                 int(pk), motivo=ser.validated_data.get('motivo', '')
             )
-            return Response(CompraSerializer(compra).data)
+            return self._serialize(compra, request)
         except PurchasesException as e:
             return self._error(e)
 
@@ -134,6 +141,63 @@ class CompraViewSet(ViewSet):
             compra = self._service(request).recibir_mercancia(
                 int(pk), items_recibidos=ser.validated_data['items']
             )
-            return Response(CompraSerializer(compra).data)
+            return self._serialize(compra, request)
         except PurchasesException as e:
             return self._error(e)
+
+    # ── Comprobantes ────────────────────────────────────────────────────────────
+
+    # Tipos aceptados para el comprobante de compra (ticket/factura del proveedor)
+    COMPROBANTE_TIPOS = {'application/pdf', 'image/png', 'image/jpeg'}
+    COMPROBANTE_MAX_BYTES = 10 * 1024 * 1024  # 10 MB
+
+    @action(detail=True, methods=['post'], url_path='comprobantes',
+            parser_classes=[MultiPartParser, FormParser])
+    def agregar_comprobante(self, request, pk=None):
+        """
+        POST /purchases/compras/{id}/comprobantes/  → adjunta un PDF/PNG/JPG (campo 'comprobante').
+        Una compra puede tener varios (p. ej. uno por cada recepción parcial).
+        """
+        from apps.purchases.models import CompraComprobante
+
+        try:
+            compra = self._service(request).obtener_compra(int(pk))
+        except PurchasesException as e:
+            return self._error(e)
+
+        archivo = request.FILES.get('comprobante')
+        if not archivo:
+            return Response({'error': 'No se recibió ningún archivo.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if archivo.content_type not in self.COMPROBANTE_TIPOS:
+            return Response({'error': 'Formato no permitido. Sube un PDF, PNG o JPG.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if archivo.size > self.COMPROBANTE_MAX_BYTES:
+            return Response({'error': 'El archivo supera el límite de 10 MB.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        CompraComprobante.objects.create(
+            compra=compra,
+            archivo=archivo,
+            nombre_original=archivo.name[:255],
+            subido_por=request.user,
+        )
+        return self._serialize(compra, request)
+
+    @action(detail=True, methods=['delete'],
+            url_path=r'comprobantes/(?P<comprobante_id>[0-9]+)')
+    def eliminar_comprobante(self, request, pk=None, comprobante_id=None):
+        """DELETE /purchases/compras/{id}/comprobantes/{comprobante_id}/ → elimina un comprobante."""
+        from apps.purchases.models import CompraComprobante
+
+        try:
+            compra = self._service(request).obtener_compra(int(pk))
+        except PurchasesException as e:
+            return self._error(e)
+
+        cc = CompraComprobante.objects.filter(id=comprobante_id, compra=compra).first()
+        if not cc:
+            return Response({'error': 'Comprobante no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+        cc.archivo.delete(save=False)
+        cc.delete()
+        return self._serialize(compra, request)

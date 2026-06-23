@@ -5,6 +5,12 @@ from apps.purchases.exceptions import (
 )
 
 
+def _fmt(num) -> str:
+    """Formatea quitando ceros decimales sobrantes (15.0000 → 15, 1.50 → 1.5)."""
+    s = f'{Decimal(str(num)):f}'
+    return s.rstrip('0').rstrip('.') if '.' in s else s
+
+
 class CompraValidator:
 
     @staticmethod
@@ -70,8 +76,8 @@ class CompraValidator:
 
             if nueva_total > detalle.cantidad:
                 raise RecepcionInvalidaException(
-                    f"La cantidad a recibir ({cantidad_a_recibir}) para el detalle "
-                    f"{id_detalle} supera la cantidad pendiente ({detalle.cantidad_pendiente})."
+                    f"La cantidad a recibir ({_fmt(cantidad_a_recibir)}) para el detalle "
+                    f"{id_detalle} supera la cantidad pendiente ({_fmt(detalle.cantidad_pendiente)})."
                 )
 
             if cantidad_a_recibir <= 0:

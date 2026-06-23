@@ -1,6 +1,52 @@
 from decimal import Decimal
 from rest_framework import serializers
-from apps.purchases.models import Compra, DetalleCompra
+from apps.purchases.models import Compra, DetalleCompra, CompraComprobante
+
+
+def _archivo_url(fieldfile, request=None):
+    """URL para un archivo en storage. En S3 devuelve una URL prefirmada temporal
+    (los comprobantes no son públicos); en local, la URL absoluta de /media/."""
+    if not fieldfile:
+        return None
+    from django.conf import settings
+    if getattr(settings, 'AWS_STORAGE_BUCKET_NAME', ''):
+        try:
+            import boto3
+            region = settings.AWS_S3_REGION_NAME
+            s3 = boto3.client(
+                's3',
+                region_name=region,
+                endpoint_url=f'https://s3.{region}.amazonaws.com',
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            )
+            return s3.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME, 'Key': fieldfile.name},
+                ExpiresIn=3600,
+            )
+        except Exception:
+            return None
+    url = fieldfile.url
+    return request.build_absolute_uri(url) if request else url
+
+
+class CompraComprobanteSerializer(serializers.ModelSerializer):
+    archivo_url       = serializers.SerializerMethodField()
+    subido_por_nombre = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CompraComprobante
+        fields = ['id', 'nombre_original', 'archivo_url', 'subido_por_nombre', 'created_at']
+
+    def get_archivo_url(self, obj):
+        return _archivo_url(obj.archivo, self.context.get('request'))
+
+    def get_subido_por_nombre(self, obj):
+        u = obj.subido_por
+        if not u:
+            return None
+        return getattr(u, 'nombre', None) or getattr(u, 'username', None) or str(u)
 
 
 # ── Detalle ───────────────────────────────────────────────────────────────────
@@ -59,11 +105,12 @@ class DetalleCompraLightSerializer(serializers.ModelSerializer):
 class CompraSerializer(serializers.ModelSerializer):
     detalles = DetalleCompraSerializer(many=True, read_only=True)
     nombre_proveedor = serializers.CharField(
-        source='proveedor.nombre_comercial', read_only=True
+        source='proveedor.nombre_comercial', read_only=True, default=None,
     )
     nombre_sucursal = serializers.CharField(
         source='sucursal.nombre', read_only=True
     )
+    comprobantes = CompraComprobanteSerializer(many=True, read_only=True)
 
     class Meta:
         model = Compra
@@ -76,6 +123,7 @@ class CompraSerializer(serializers.ModelSerializer):
             'subtotal', 'descuento', 'impuestos', 'total', 'saldo_pendiente',
             'metodo_pago',
             'numero_factura', 'orden_compra', 'notas',
+            'comprobantes',
             'detalles',
             'created_at', 'updated_at',
         ]
@@ -84,7 +132,7 @@ class CompraSerializer(serializers.ModelSerializer):
 
 class CompraLightSerializer(serializers.ModelSerializer):
     nombre_proveedor = serializers.CharField(
-        source='proveedor.nombre_comercial', read_only=True
+        source='proveedor.nombre_comercial', read_only=True, default=None,
     )
     nombre_sucursal = serializers.CharField(
         source='sucursal.nombre', read_only=True
@@ -127,7 +175,7 @@ class ItemRecepcionSerializer(serializers.Serializer):
 
 
 class CrearCompraRequestSerializer(serializers.Serializer):
-    id_proveedor = serializers.UUIDField()   # ← UUID
+    id_proveedor = serializers.UUIDField(required=False, allow_null=True)   # ← opcional
     id_sucursal = serializers.UUIDField()    # ← UUID
     fecha_entrega = serializers.DateField(required=False, allow_null=True)
     fecha_vencimiento = serializers.DateField(required=False, allow_null=True)

@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
+import { useQueryClient } from '@tanstack/react-query'
 import { useCompra, useConfirmarCompra, useCancelarCompra } from '@/hooks/usePurchases'
-import { formatMXN } from '@/utils/formatters'
-import { X, CheckCircle, XCircle, PackageCheck } from 'lucide-react'
+import { purchasesApi } from '@/api/purchases-api'
+import { formatMXN, formatCantidad } from '@/utils/formatters'
+import { X, CheckCircle, XCircle, PackageCheck, Paperclip, FileText, Trash2 } from 'lucide-react'
 import type { EstadoCompra } from '@/types/purchases.types'
 import { ReceiveModal } from '../ReceiveModal/ReceiveModal'
 
@@ -23,10 +25,52 @@ interface Props {
 
 export function PurchaseDetail({ idCompra, onClose, onSuccess }: Props) {
   const { t } = useTranslation()
+  const qc = useQueryClient()
   const { data: compra, isLoading } = useCompra(idCompra)
   const confirmar = useConfirmarCompra(idCompra)
   const cancelar  = useCancelarCompra(idCompra)
   const [showReceive, setShowReceive] = useState(false)
+  const [eliminandoId, setEliminandoId] = useState<number | null>(null)
+  const [subiendoComp, setSubiendoComp] = useState(false)
+  const compInputRef = useRef<HTMLInputElement>(null)
+
+  const COMP_TIPOS = ['application/pdf', 'image/png', 'image/jpeg']
+
+  const handleSubirComprobantes = async (files: FileList | null) => {
+    if (!files || files.length === 0) return
+    const seleccion = Array.from(files)
+    const invalido = seleccion.find((f) => !COMP_TIPOS.includes(f.type) || f.size > 10 * 1024 * 1024)
+    if (invalido) {
+      alert(t('purchaseDetail.comprobanteInvalido', { defaultValue: 'Solo PDF/PNG/JPG hasta 10 MB.' }))
+      return
+    }
+    setSubiendoComp(true)
+    try {
+      let actualizada = compra
+      for (const f of seleccion) {
+        actualizada = await purchasesApi.subirComprobante(idCompra, f)
+      }
+      if (actualizada) qc.setQueryData(['compra', idCompra], actualizada)
+    } catch {
+      alert(t('purchaseDetail.comprobanteUploadError', { defaultValue: 'No se pudo subir el comprobante.' }))
+    } finally {
+      setSubiendoComp(false)
+      if (compInputRef.current) compInputRef.current.value = ''
+    }
+  }
+
+  const handleEliminarComprobante = async (comprobanteId: number) => {
+    if (!confirm(t('purchaseDetail.comprobanteDeleteConfirm', { defaultValue: '¿Eliminar este comprobante?' }))) return
+    setEliminandoId(comprobanteId)
+    try {
+      const actualizada = await purchasesApi.eliminarComprobante(idCompra, comprobanteId)
+      qc.setQueryData(['compra', idCompra], actualizada)
+    } catch {
+      alert(t('purchaseDetail.comprobanteDeleteError', { defaultValue: 'No se pudo eliminar el comprobante.' }))
+    } finally {
+      setEliminandoId(null)
+    }
+  }
 
   const handleConfirmar = async () => {
     if (!confirm(t('purchaseDetail.confirmDialog'))) return
@@ -158,7 +202,7 @@ export function PurchaseDetail({ idCompra, onClose, onSuccess }: Props) {
                       </span>
                     )},
                     { label: t('purchaseDetail.paymentMethod'), value: compra.metodo_pago ?? '—' },
-                    { label: t('purchaseDetail.proveedor'),  value: compra.nombre_proveedor },
+                    { label: t('purchaseDetail.proveedor'),  value: compra.nombre_proveedor || t('purchaseDetail.sinProveedor', { defaultValue: 'Sin proveedor' }) },
                     { label: t('purchaseDetail.sucursal'),   value: compra.nombre_sucursal },
                     { label: t('purchaseDetail.fechaCompra'), value: new Date(compra.fecha_compra + 'T12:00:00').toLocaleDateString(undefined, { day: '2-digit', month: 'long', year: 'numeric' }) },
                     { label: t('purchaseDetail.fechaEntrega'), value: compra.fecha_entrega
@@ -180,6 +224,47 @@ export function PurchaseDetail({ idCompra, onClose, onSuccess }: Props) {
                     <p style={{ fontSize: 13, color: 'var(--text)' }}>{compra.notas}</p>
                   </div>
                 )}
+                {compra.comprobantes.length > 0 && (
+                  <div>
+                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <Paperclip size={12} />
+                      {t('purchaseDetail.comprobantes', { defaultValue: 'Comprobantes' })} ({compra.comprobantes.length})
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {compra.comprobantes.map((c) => (
+                        <div key={c.id} style={{
+                          display: 'flex', alignItems: 'center', gap: 8,
+                          padding: '8px 10px', borderRadius: 8,
+                          background: 'var(--surface-hover)', border: '1px solid var(--border)',
+                        }}>
+                          <FileText size={15} style={{ color: 'var(--color-primary)', flexShrink: 0 }} />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            {c.archivo_url ? (
+                              <a href={c.archivo_url} target="_blank" rel="noopener noreferrer"
+                                style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-primary)', textDecoration: 'none', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {c.nombre_original || t('purchaseDetail.verComprobante', { defaultValue: 'Ver comprobante' })}
+                              </a>
+                            ) : (
+                              <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{c.nombre_original}</span>
+                            )}
+                            <p style={{ fontSize: 10, color: 'var(--text-secondary)', margin: 0 }}>
+                              {new Date(c.created_at).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
+                              {c.subido_por_nombre ? ` · ${c.subido_por_nombre}` : ''}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => handleEliminarComprobante(c.id)}
+                            disabled={eliminandoId === c.id}
+                            title={t('common.delete', { defaultValue: 'Eliminar' })}
+                            style={{ padding: 5, borderRadius: 6, display: 'flex', flexShrink: 0, background: 'var(--color-error-bg)', border: 'none', color: 'var(--color-error)', cursor: eliminandoId === c.id ? 'not-allowed' : 'pointer', opacity: eliminandoId === c.id ? 0.5 : 1 }}
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Productos */}
@@ -198,7 +283,7 @@ export function PurchaseDetail({ idCompra, onClose, onSuccess }: Props) {
                           {d.nombre_producto}
                         </p>
                         <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
-                          SKU: {d.sku_producto} · {d.cantidad} × {formatMXN(Number(d.precio_unitario))}
+                          SKU: {d.sku_producto} · {formatCantidad(d.cantidad)} × {formatMXN(Number(d.precio_unitario))}
                           {Number(d.descuento) > 0 && ` − ${d.descuento}%`}
                         </p>
                         {/* Barra de recepción */}
@@ -212,7 +297,7 @@ export function PurchaseDetail({ idCompra, onClose, onSuccess }: Props) {
                               }} />
                             </div>
                             <span style={{ fontSize: 10, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
-                              {d.cantidad_recibida}/{d.cantidad}
+                              {formatCantidad(d.cantidad_recibida)}/{formatCantidad(d.cantidad)}
                             </span>
                           </div>
                         )}

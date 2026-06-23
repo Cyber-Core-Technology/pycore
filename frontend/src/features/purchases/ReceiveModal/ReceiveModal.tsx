@@ -1,10 +1,14 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useRecibirMercancia } from '@/hooks/usePurchases'
-import { formatMXN } from '@/utils/formatters'
-import { X, PackageCheck } from 'lucide-react'
+import { purchasesApi } from '@/api/purchases-api'
+import { formatMXN, formatCantidad } from '@/utils/formatters'
+import { X, PackageCheck, Paperclip, FileText, Trash2 } from 'lucide-react'
 import type { Compra } from '@/types/purchases.types'
+
+const COMPROBANTE_TIPOS = ['application/pdf', 'image/png', 'image/jpeg']
+const COMPROBANTE_MAX_MB = 10
 
 interface Props {
   compra:    Compra
@@ -26,9 +30,30 @@ export function ReceiveModal({ compra, onClose, onSuccess }: Props) {
     return init
   })
 
+  // Comprobante opcional (PDF/PNG/JPG del proveedor)
+  const [comprobante, setComprobante] = useState<File | null>(null)
+  const [comprobanteError, setComprobanteError] = useState('')
+  const [subiendo, setSubiendo] = useState(false)
+  const [error, setError] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const detallesPendientes = compra.detalles.filter(
     (d) => !d.esta_completamente_recibida
   )
+
+  const seleccionarComprobante = (file: File | null) => {
+    setComprobanteError('')
+    if (!file) { setComprobante(null); return }
+    if (!COMPROBANTE_TIPOS.includes(file.type)) {
+      setComprobanteError(t('receiveModal.comprobanteTipoError', { defaultValue: 'Solo se permite PDF, PNG o JPG.' }))
+      return
+    }
+    if (file.size > COMPROBANTE_MAX_MB * 1024 * 1024) {
+      setComprobanteError(t('receiveModal.comprobanteSizeError', { defaultValue: `El archivo supera ${COMPROBANTE_MAX_MB} MB.` }))
+      return
+    }
+    setComprobante(file)
+  }
 
   const handleSubmit = async () => {
     const items = detallesPendientes
@@ -43,7 +68,24 @@ export function ReceiveModal({ compra, onClose, onSuccess }: Props) {
       return
     }
 
-    await recibir.mutateAsync({ items })
+    setError('')
+    try {
+      await recibir.mutateAsync({ items })
+    } catch (e: any) {
+      setError(e?.response?.data?.error ?? t('receiveModal.errorDefault', { defaultValue: 'No se pudo registrar la recepción.' }))
+      return
+    }
+    // El comprobante es opcional: si falla la subida no revertimos la recepción
+    if (comprobante) {
+      try {
+        setSubiendo(true)
+        await purchasesApi.subirComprobante(compra.id_compra, comprobante)
+      } catch {
+        alert(t('receiveModal.comprobanteUploadError', { defaultValue: 'La mercancía se recibió, pero el comprobante no se pudo subir.' }))
+      } finally {
+        setSubiendo(false)
+      }
+    }
     onSuccess()
   }
 
@@ -98,7 +140,7 @@ export function ReceiveModal({ compra, onClose, onSuccess }: Props) {
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('receiveModal.pending')}</p>
-                      <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-warning)' }}>{pendiente}</p>
+                      <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-warning)' }}>{formatCantidad(pendiente)}</p>
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -125,6 +167,67 @@ export function ReceiveModal({ compra, onClose, onSuccess }: Props) {
           )}
         </div>
 
+        {/* Comprobante opcional */}
+        {detallesPendientes.length > 0 && (
+          <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>
+              {t('receiveModal.comprobanteLabel', { defaultValue: 'Comprobante (opcional)' })}
+            </p>
+            {comprobante ? (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px',
+                borderRadius: 8, background: 'var(--surface-hover)', border: '1px solid var(--border)',
+              }}>
+                <FileText size={15} style={{ color: 'var(--color-primary)', flexShrink: 0 }} />
+                <span style={{ fontSize: 12, color: 'var(--text)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {comprobante.name}
+                </span>
+                <span style={{ fontSize: 11, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
+                  {(comprobante.size / 1024).toFixed(0)} KB
+                </span>
+                <button
+                  onClick={() => { setComprobante(null); if (fileInputRef.current) fileInputRef.current.value = '' }}
+                  style={{ padding: 4, borderRadius: 6, display: 'flex', background: 'var(--color-error-bg)', border: 'none', color: 'var(--color-error)', cursor: 'pointer', flexShrink: 0 }}
+                >
+                  <Trash2 size={13} />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6, width: '100%', justifyContent: 'center',
+                  padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 500,
+                  background: 'var(--surface-hover)', border: '1px dashed var(--border)',
+                  color: 'var(--text-secondary)', cursor: 'pointer',
+                }}
+              >
+                <Paperclip size={14} />
+                {t('receiveModal.comprobanteAdd', { defaultValue: 'Adjuntar PDF/PNG/JPG' })}
+              </button>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/pdf,image/png,image/jpeg"
+              onChange={(e) => seleccionarComprobante(e.target.files?.[0] ?? null)}
+              style={{ display: 'none' }}
+            />
+            {comprobanteError && (
+              <p style={{ fontSize: 11, color: 'var(--color-error)', marginTop: 6 }}>{comprobanteError}</p>
+            )}
+          </div>
+        )}
+
+        {/* Error general */}
+        {error && detallesPendientes.length > 0 && (
+          <div style={{ padding: '0 20px', flexShrink: 0 }}>
+            <p style={{ fontSize: 12, color: 'var(--color-error)', padding: '8px 12px', borderRadius: 8, background: 'var(--color-error-bg)' }}>
+              ⚠️ {error}
+            </p>
+          </div>
+        )}
+
         {/* Footer */}
         {detallesPendientes.length > 0 && (
           <div style={{
@@ -143,17 +246,17 @@ export function ReceiveModal({ compra, onClose, onSuccess }: Props) {
             </button>
             <button
               onClick={handleSubmit}
-              disabled={recibir.isPending}
+              disabled={recibir.isPending || subiendo}
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
                 padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600,
                 background: 'var(--color-primary)', color: 'var(--color-primary-text)',
-                border: 'none', cursor: recibir.isPending ? 'not-allowed' : 'pointer',
-                opacity: recibir.isPending ? 0.7 : 1,
+                border: 'none', cursor: (recibir.isPending || subiendo) ? 'not-allowed' : 'pointer',
+                opacity: (recibir.isPending || subiendo) ? 0.7 : 1,
               }}
             >
               <PackageCheck size={14} />
-              {recibir.isPending ? t('receiveModal.registering') : t('receiveModal.confirmReceive')}
+              {(recibir.isPending || subiendo) ? t('receiveModal.registering') : t('receiveModal.confirmReceive')}
             </button>
           </div>
         )}

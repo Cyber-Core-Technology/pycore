@@ -67,7 +67,7 @@ export function PurchasesList() {
   const filtradas = search
     ? compras.filter((c) =>
         c.folio.toLowerCase().includes(search.toLowerCase()) ||
-        c.nombre_proveedor.toLowerCase().includes(search.toLowerCase())
+        (c.nombre_proveedor ?? '').toLowerCase().includes(search.toLowerCase())
       )
     : compras
 
@@ -287,8 +287,8 @@ export function PurchasesList() {
                       <td style={{ padding: '12px 16px', fontSize: 13, fontFamily: 'monospace', fontWeight: 600, color: 'var(--text)' }}>
                         {compra.folio}
                       </td>
-                      <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text)' }}>
-                        {compra.nombre_proveedor}
+                      <td style={{ padding: '12px 16px', fontSize: 13, color: compra.nombre_proveedor ? 'var(--text)' : 'var(--text-secondary)' }}>
+                        {compra.nombre_proveedor ?? t('purchasesList.sinProveedor', { defaultValue: 'Sin proveedor' })}
                       </td>
                       <td style={{ padding: '12px 16px', fontSize: 12, color: 'var(--text-secondary)' }}>
                         {compra.nombre_sucursal}
