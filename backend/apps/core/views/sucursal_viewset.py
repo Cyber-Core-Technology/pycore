@@ -30,7 +30,21 @@ class SucursalViewSet(ViewSet):
         serializer = SucursalCreateSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        sucursal = SucursalRepository.create(empresa, serializer.validated_data)
+
+        # El código es único por empresa, incluso para sucursales dadas de baja
+        # (borrado lógico). Si choca con una inactiva, la reactivamos; si choca
+        # con una activa, devolvemos un error claro en lugar de un 500.
+        codigo = serializer.validated_data.get('codigo')
+        existente = SucursalRepository.get_by_codigo(empresa, codigo) if codigo else None
+        if existente and existente.activo:
+            return Response(
+                {'codigo': ['Ya existe una sucursal activa con este código.']},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if existente:
+            sucursal = SucursalRepository.reactivate(existente, serializer.validated_data)
+        else:
+            sucursal = SucursalRepository.create(empresa, serializer.validated_data)
 
         # Sube el quantity en Stripe; cobra prorrateado los días restantes del ciclo.
         StripeService.sync_branch_quantity(empresa, proration_behavior='create_prorations')

@@ -5,7 +5,12 @@ import { Plus, Pencil, Trash2, X, Star, MapPin, Phone, Mail, Check } from 'lucid
 import { useTranslation } from 'react-i18next'
 import { coreApi } from '@/api/core-api'
 import type { Sucursal, SucursalPayload } from '@/api/core-api'
+import { billingApi, type BranchPreview } from '@/api/billing-api'
 import { BackToConfig } from '../components/BackToConfig'
+
+function money(v?: string, cur = 'MXN') {
+  return new Intl.NumberFormat(undefined, { style: 'currency', currency: cur, minimumFractionDigits: 2 }).format(Number(v || 0))
+}
 
 const inputStyle: React.CSSProperties = {
   width: '100%', maxWidth: '100%', padding: '9px 12px', borderRadius: 8, fontSize: 14,
@@ -35,22 +40,39 @@ function SucursalDrawer({ editing, onClose }: { editing: Sucursal | null; onClos
       : sucDefault,
   )
   const [error, setError] = useState<string | null>(null)
+  // Vista previa del cobro al crear una sucursal nueva (modal de confirmación)
+  const [preview, setPreview] = useState<BranchPreview | null>(null)
+  const [previewing, setPreviewing] = useState(false)
 
   const save = useMutation({
     mutationFn: () => editing
       ? coreApi.sucursales.actualizar(editing.id_sucursal, form)
       : coreApi.sucursales.crear(form),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['sucursales'] }); qc.invalidateQueries({ queryKey: ['sucursales-config'] }); onClose() },
-    onError:   () => setError(t('config.branches.saveError')),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['sucursales'] }); qc.invalidateQueries({ queryKey: ['sucursales-config'] }); qc.invalidateQueries({ queryKey: ['suscripcion'] }); onClose() },
+    onError:   () => { setPreview(null); setError(t('config.branches.saveError')) },
   })
 
   const set = <K extends keyof SucursalPayload>(k: K, v: SucursalPayload[K]) => setForm(f => ({ ...f, [k]: v }))
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.nombre.trim()) { setError(t('config.branches.nameRequired')); return }
     if (!form.codigo.trim()) { setError(t('config.branches.codeRequired')); return }
     setError(null)
-    save.mutate()
+
+    // Al editar no cambia el nº de sucursales facturadas → guardar directo.
+    if (editing) { save.mutate(); return }
+
+    // Al crear: consultar el cobro y pedir confirmación. Si no hay suscripción
+    // facturable (o falla el preview), no bloqueamos: se crea directo.
+    setPreviewing(true)
+    try {
+      const p = await billingApi.previewBranch()
+      if (p.applicable) { setPreview(p) } else { save.mutate() }
+    } catch {
+      save.mutate()
+    } finally {
+      setPreviewing(false)
+    }
   }
 
   return createPortal(
@@ -163,13 +185,64 @@ function SucursalDrawer({ editing, onClose }: { editing: Sucursal | null; onClos
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={save.isPending}
-            style={{ flex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 14px', borderRadius: 8, fontSize: 14, fontWeight: 500, background: 'var(--color-primary)', color: 'var(--color-primary-text)', border: 'none', cursor: save.isPending ? 'not-allowed' : 'pointer', opacity: save.isPending ? 0.7 : 1 }}
+            disabled={save.isPending || previewing}
+            style={{ flex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 14px', borderRadius: 8, fontSize: 14, fontWeight: 500, background: 'var(--color-primary)', color: 'var(--color-primary-text)', border: 'none', cursor: (save.isPending || previewing) ? 'not-allowed' : 'pointer', opacity: (save.isPending || previewing) ? 0.7 : 1 }}
           >
-            {save.isPending ? t('common.saving') : <><Check size={14} aria-hidden="true" /> {t('common.save')}</>}
+            {previewing ? t('config.branches.calculating', { defaultValue: 'Calculando cobro…' })
+              : save.isPending ? t('common.saving')
+              : <><Check size={14} aria-hidden="true" /> {t('common.save')}</>}
           </button>
         </div>
       </div>
+
+      {/* Confirmación de cobro al crear sucursal */}
+      {preview && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.45)' }}>
+          <div role="dialog" aria-modal="true" style={{ width: 'min(420px, 92%)', background: 'var(--surface)', borderRadius: 14, border: '1px solid var(--border)', padding: '22px 22px 18px', boxShadow: '0 12px 40px rgba(0,0,0,0.25)' }}>
+            <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>
+              {t('config.branches.confirmChargeTitle', { defaultValue: 'Confirmar nueva sucursal' })}
+            </p>
+            <p style={{ margin: '6px 0 16px', fontSize: 13, color: 'var(--text-secondary)' }}>
+              {t('config.branches.confirmChargeSubtitle', { defaultValue: 'Tu plan se cobra por sucursal. Al agregar esta sucursal:' })}
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, background: 'var(--surface-hover)', borderRadius: 10, padding: '14px 16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                <span style={{ color: 'var(--text-secondary)' }}>{t('config.branches.confirmProration', { defaultValue: 'Se suma a tu próximo recibo (prorrateado)' })}</span>
+                <strong style={{ color: 'var(--text)' }}>{money(preview.cargo_prorrateado, preview.currency)}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                <span style={{ color: 'var(--text-secondary)' }}>{t('config.branches.confirmNewMonthly', { defaultValue: 'Tu mensualidad pasará a' })}</span>
+                <strong style={{ color: 'var(--text)' }}>
+                  {money(preview.mensualidad_nueva, preview.currency)}
+                  <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}> /mes</span>
+                </strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-secondary)' }}>
+                <span>{t('config.branches.confirmBranches', { defaultValue: 'Sucursales facturadas' })}</span>
+                <span>{preview.sucursales_actuales} → {preview.sucursales_nuevas}</span>
+              </div>
+            </div>
+
+            {preview.proximo_cobro_fecha && (
+              <p style={{ margin: '12px 2px 0', fontSize: 12, color: 'var(--text-secondary)' }}>
+                {t('config.branches.confirmNextDate', { defaultValue: 'Próximo cobro' })}: {new Date(preview.proximo_cobro_fecha).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+              </p>
+            )}
+
+            <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
+              <button type="button" onClick={() => setPreview(null)} disabled={save.isPending}
+                style={{ flex: 1, padding: '9px 14px', borderRadius: 8, fontSize: 14, fontWeight: 500, background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border)', cursor: 'pointer' }}>
+                {t('common.cancel')}
+              </button>
+              <button type="button" onClick={() => save.mutate()} disabled={save.isPending}
+                style={{ flex: 2, padding: '9px 14px', borderRadius: 8, fontSize: 14, fontWeight: 600, background: 'var(--color-primary)', color: 'var(--color-primary-text)', border: 'none', cursor: save.isPending ? 'not-allowed' : 'pointer', opacity: save.isPending ? 0.7 : 1 }}>
+                {save.isPending ? t('common.saving') : t('config.branches.confirmAndCreate', { defaultValue: 'Confirmar y crear' })}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>,
     document.body,
   )

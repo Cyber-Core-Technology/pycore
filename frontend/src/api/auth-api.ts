@@ -67,6 +67,7 @@ export const authApi = {
     tipo_negocio: string
     giro_negocio?: string
     plan: string
+    sucursales?: { nombre: string; codigo?: string }[]
     nombre: string
     apellido_paterno?: string
     email: string

@@ -36,6 +36,10 @@ class UsuarioService:
             empresa.save(update_fields=['giro_negocio'])
             self._sembrar_categorias(empresa, giro)
 
+        # 1b. Sucursales adicionales a la principal (SUC001 la crea EmpresaService).
+        # El cobro por sucursal se refleja solo: el checkout cuenta las activas.
+        self._crear_sucursales_adicionales(empresa, data.get('sucursales') or [])
+
         # 2. Crear usuario admin
         usuario = repo.crear(
             empresa=empresa,
@@ -67,6 +71,26 @@ class UsuarioService:
             'usuario': usuario,
             'empresa': empresa,
         }
+
+    def _crear_sucursales_adicionales(self, empresa, sucursales: list):
+        """Crea las sucursales extra del registro, autogenerando el código (SUC002…)."""
+        from apps.core.repositories import SucursalRepository
+
+        # La principal ya ocupa SUC001; continuar desde el siguiente consecutivo.
+        siguiente = empresa.sucursales.count() + 1
+        for item in sucursales:
+            nombre = (item.get('nombre') or '').strip()
+            if not nombre:
+                continue
+            codigo = (item.get('codigo') or '').strip().upper()
+            if not codigo:
+                codigo = f'SUC{siguiente:03d}'
+            # Evitar choque de código con otra ya creada
+            while empresa.sucursales.filter(codigo=codigo).exists():
+                siguiente += 1
+                codigo = f'SUC{siguiente:03d}'
+            SucursalRepository.create(empresa, {'nombre': nombre, 'codigo': codigo})
+            siguiente += 1
 
     def _sembrar_categorias(self, empresa, giro: str):
         from apps.catalogs.models import Categoria

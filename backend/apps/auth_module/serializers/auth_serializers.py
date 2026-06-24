@@ -15,6 +15,12 @@ class TokenRefreshSerializer(serializers.Serializer):
     refresh = serializers.CharField()
 
 
+class SucursalRegistroSerializer(serializers.Serializer):
+    """Sucursal adicional (además de la principal) capturada en el registro."""
+    nombre = serializers.CharField(max_length=255)
+    codigo = serializers.CharField(max_length=20, required=False, allow_blank=True)
+
+
 class RegisterSerializer(serializers.Serializer):
     # Datos de empresa
     nombre_empresa = serializers.CharField(max_length=200)
@@ -31,6 +37,9 @@ class RegisterSerializer(serializers.Serializer):
         default='basico',
         required=False,
     )
+
+    # Sucursales adicionales a la principal (el cobro es por sucursal)
+    sucursales = SucursalRegistroSerializer(many=True, required=False, default=list)
 
     # Datos de usuario admin
     email = serializers.EmailField()

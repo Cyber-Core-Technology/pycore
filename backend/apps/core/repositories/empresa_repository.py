@@ -53,8 +53,22 @@ class SucursalRepository:
             return None
 
     @staticmethod
+    def get_by_codigo(empresa, codigo):
+        """Sucursal por código (incluye inactivas; el código es único por empresa)."""
+        return Sucursal.objects.filter(empresa=empresa, codigo=codigo).first()
+
+    @staticmethod
     def create(empresa, data):
         return Sucursal.objects.create(empresa=empresa, **data)
+
+    @staticmethod
+    def reactivate(sucursal, data):
+        """Reactiva una sucursal dada de baja, actualizándola con los datos nuevos."""
+        for field, value in data.items():
+            setattr(sucursal, field, value)
+        sucursal.activo = True
+        sucursal.save()
+        return sucursal
 
     @staticmethod
     def update_sucursal(sucursal, data):

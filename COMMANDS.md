@@ -289,3 +289,44 @@ docker compose exec backend python manage.py sync_catalogos_sat
 
 # 3. Reinicia el backend para que tome las nuevas variables
 docker compose restart backend
+
+---
+
+## Suscripciones / Billing (Stripe)
+
+El cobro es **por sucursal**: total mensual = precio del plan × nº de sucursales activas.
+Stripe lo multiplica vía el `quantity` del item de la suscripción.
+
+```bash
+# Enlazar los Price de Stripe a los planes (tras crearlos en el dashboard).
+# Formato: plan_key=price_id. Valida que sean recurring + per-unit (licensed).
+docker compose exec backend python manage.py set_stripe_prices \
+  basico=price_xxx profesional=price_yyy empresarial=price_zzz
+
+# (--no-verify omite la validación contra Stripe)
+
+# Otorgar suscripción de cortesía (estado elite, SIN Stripe, SIN vencimiento).
+# Sirve para desbloquear cuentas previas al cobro o cuentas demo/internas.
+docker compose exec backend python manage.py grant_subscription <slug> [<slug> ...]
+docker compose exec backend python manage.py grant_subscription --all        # todas sin Stripe real
+docker compose exec backend python manage.py grant_subscription <slug> --force  # pisar incluso Stripe
+docker compose exec backend python manage.py grant_subscription <slug> --status active --plan empresarial
+
+# Ejecutar a mano el recordatorio de cobro (normalmente corre por Celery Beat 9:00 AM).
+docker compose exec backend python manage.py shell -c \
+  "from apps.billing.tasks import recordatorios_cobro; print(recordatorios_cobro())"
+```
+
+### Webhook de Stripe (dev, vía Stripe CLI)
+
+```bash
+# Reenviar eventos de Stripe al backend local (puerto 8082, NO 8080).
+stripe listen --forward-to http://localhost:8082/api/v1/billing/webhook/
+
+# El secret whsec_... que imprime va en STRIPE_WEBHOOK_SECRET (.env) → reinicia backend.
+# Reenviar un evento concreto (ej. activar una suscripción ya pagada):
+stripe events resend <evt_id>
+```
+
+> En dev, `FRONTEND_URL` se sobrescribe a `http://localhost:8080` en `docker-compose.dev.yml`
+> para que Stripe Checkout regrese al frontend local en vez de producción.

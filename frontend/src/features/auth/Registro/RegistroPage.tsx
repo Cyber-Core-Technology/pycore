@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { ChevronRight, ChevronLeft, Loader2, Sun, Moon, Check } from 'lucide-react'
+import { ChevronRight, ChevronLeft, Loader2, Sun, Moon, Check, Plus, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { authApi } from '@/api/auth-api'
 import { billingApi } from '@/api/billing-api'
@@ -64,6 +64,8 @@ export function RegistroPage() {
 
   // Step 3 — plan
   const [plan, setPlan] = useState('basico')
+  // Sucursales adicionales a la principal (nombres). El cobro es por sucursal.
+  const [sucursales, setSucursales] = useState<string[]>([])
 
   const STEPS = [
     t('registro.steps.negocio'),
@@ -115,6 +117,7 @@ export function RegistroPage() {
         giro_negocio:   giroNegocio || undefined,
         rfc:            rfc.trim() || undefined,
         plan,
+        sucursales:     sucursales.map(n => n.trim()).filter(Boolean).map(nombre => ({ nombre })),
         nombre:         nombre.trim(),
         apellido_paterno: apellido.trim() || undefined,
         email:          email.trim(),
@@ -154,6 +157,17 @@ export function RegistroPage() {
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
     opacity: loading ? 0.7 : 1,
   }
+
+  // Total en vivo del paso de plan: precio por sucursal × (principal + extras)
+  const FALLBACK_PRICES: Record<string, string> = { basico: '999', profesional: '1499', empresarial: '1999' }
+  const selectedPlanObj = planes.find((p: any) => p.plan_key === plan)
+  const unitPrice = Number(selectedPlanObj?.precio_mensual ?? FALLBACK_PRICES[plan] ?? 0)
+  const totalSucursales = 1 + sucursales.filter(n => n.trim()).length
+  const totalMensual = unitPrice * totalSucursales
+
+  const addSucursal    = () => setSucursales(arr => [...arr, ''])
+  const setSucursalAt  = (i: number, v: string) => setSucursales(arr => arr.map((n, j) => (j === i ? v : n)))
+  const removeSucursal = (i: number) => setSucursales(arr => arr.filter((_, j) => j !== i))
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--bg)', color: 'var(--text)' }}>
@@ -378,6 +392,54 @@ export function RegistroPage() {
                   )
                 })}
               </div>
+
+              {/* Sucursales — el cobro es por sucursal */}
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700 }}>{t('registro.branchesTitle', { defaultValue: 'Tus sucursales' })}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
+                    {t('registro.branchesHint', { defaultValue: 'Tu plan se cobra por sucursal. Puedes agregar más después.' })}
+                  </div>
+                </div>
+
+                {/* Principal (incluida) */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 10, background: 'var(--surface)', border: '1px solid var(--border)' }}>
+                  <span style={{ fontSize: 13, fontWeight: 600 }}>{t('registro.branchPrincipal', { defaultValue: 'Sucursal Principal' })}</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{formatPrice(String(unitPrice))}{t('registro.perMonth')}</span>
+                </div>
+
+                {/* Extras */}
+                {sucursales.map((nombre, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input
+                      value={nombre}
+                      onChange={e => setSucursalAt(i, e.target.value)}
+                      placeholder={t('registro.branchPlaceholder', { defaultValue: `Sucursal ${i + 2}` })}
+                      style={{ ...inputStyle, flex: 1 }}
+                    />
+                    <button type="button" onClick={() => removeSucursal(i)} aria-label={t('common.delete')}
+                      style={{ flexShrink: 0, padding: '10px', borderRadius: 10, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex' }}>
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+
+                <button type="button" onClick={addSucursal}
+                  style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 10, border: '1px dashed var(--border)', background: 'transparent', color: 'var(--color-primary, #0D9373)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                  <Plus size={15} /> {t('registro.addBranch', { defaultValue: 'Agregar sucursal' })}
+                </button>
+
+                {/* Total */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderRadius: 10, background: 'rgba(13,147,115,0.08)', marginTop: 4 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600 }}>
+                    {t('registro.branchesTotalLabel', { count: totalSucursales, defaultValue: 'Total ({{count}} sucursales)' })}
+                  </span>
+                  <span style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-primary, #0D9373)' }}>
+                    {formatPrice(String(totalMensual))}<span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)' }}>{t('registro.perMonth')}</span>
+                  </span>
+                </div>
+              </div>
+
               <p style={{ fontSize: 11, color: 'var(--text-secondary)', margin: 0, textAlign: 'center' }}>
                 {t('registro.stripeNotice')}
               </p>

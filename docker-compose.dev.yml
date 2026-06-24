@@ -10,6 +10,8 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     environment:
       - DJANGO_SETTINGS_MODULE=pycore.settings.development
+      # En dev, Stripe Checkout/Portal deben regresar al frontend local, no a producción.
+      - FRONTEND_URL=http://localhost:8080
 
   celery_worker:
     build:

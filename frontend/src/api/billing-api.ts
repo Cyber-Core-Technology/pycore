@@ -25,9 +25,25 @@ export interface Subscription {
   updated_at: string
 }
 
+export interface BranchPreview {
+  applicable: boolean
+  currency?: string
+  precio_unitario?: string
+  sucursales_actuales?: number
+  sucursales_nuevas?: number
+  mensualidad_actual?: string
+  mensualidad_nueva?: string
+  cargo_prorrateado?: string
+  proximo_recibo_total?: string
+  proximo_cobro_fecha?: string | null
+}
+
 export const billingApi = {
   getPlanes: () =>
     api.get<SubscriptionPlan[]>('/api/v1/billing/planes/').then(r => r.data),
+
+  previewBranch: () =>
+    api.get<BranchPreview>('/api/v1/billing/preview-branch/').then(r => r.data),
 
   getSuscripcion: () =>
     api.get<Subscription>('/api/v1/billing/suscripcion/').then(r => r.data),
