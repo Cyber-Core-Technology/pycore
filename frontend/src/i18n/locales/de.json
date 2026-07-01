@@ -1480,7 +1480,16 @@
       "usuario.logout": "Benutzer-Logout",
       "usuario.bloqueado": "Benutzer gesperrt",
       "colaborador.creado": "Mitarbeiter erstellt",
-      "asistencia.registrada": "Anwesenheit erfasst"
+      "asistencia.registrada": "Anwesenheit erfasst",
+      "producto.creado": "Produkt erstellt",
+      "producto.actualizado": "Produkt aktualisiert",
+      "cuenta_cobrar.cancelada": "FK storniert",
+      "cuenta_cobrar.vencida": "FK überfällig",
+      "cuenta_pagar.cancelada": "VK storniert",
+      "gasto.registrado": "Ausgabe erfasst",
+      "registro.creado": "Datensatz erstellt",
+      "registro.actualizado": "Datensatz aktualisiert",
+      "registro.eliminado": "Datensatz gelöscht"
     }
   },
   "treasury": {

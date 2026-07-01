@@ -12,7 +12,8 @@ class AuditService:
     def registrar(self, accion: str, payload: dict,
                   id_empresa=None, id_usuario=None,
                   usuario_email='', tabla='', id_registro='',
-                  ip_address=None) -> None:
+                  ip_address=None, datos_nuevos=None,
+                  datos_anteriores=None, user_agent='') -> None:
         try:
             kwargs = dict(
                 accion=accion,
@@ -26,8 +27,13 @@ class AuditService:
             resolved_ip = ip_address or payload.get('ip_address')
             if resolved_ip:
                 kwargs['ip_address'] = resolved_ip
-            if payload.get('user_agent'):
-                kwargs['user_agent'] = payload['user_agent']
+            resolved_ua = user_agent or payload.get('user_agent')
+            if resolved_ua:
+                kwargs['user_agent'] = resolved_ua
+            if datos_nuevos is not None:
+                kwargs['datos_nuevos'] = datos_nuevos
+            if datos_anteriores is not None:
+                kwargs['datos_anteriores'] = datos_anteriores
 
             self.repo.create(**kwargs)
         except Exception as e:

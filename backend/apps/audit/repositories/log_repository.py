@@ -20,8 +20,9 @@ def _clean_payload(payload: dict) -> dict:
 
 class LogAuditoriaRepository:
     def create(self, **kwargs) -> LogAuditoria:
-        if 'payload' in kwargs and isinstance(kwargs['payload'], dict):
-            kwargs['payload'] = _clean_payload(kwargs['payload'])
+        for campo in ('payload', 'datos_nuevos', 'datos_anteriores'):
+            if isinstance(kwargs.get(campo), (dict, list)):
+                kwargs[campo] = _clean_payload(kwargs[campo])
         return LogAuditoria.objects.create(**kwargs)
 
     def _apply_filters(self, qs, filters: dict):

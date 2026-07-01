@@ -1480,7 +1480,16 @@
       "usuario.logout": "Выход пользователя",
       "usuario.bloqueado": "Пользователь заблокирован",
       "colaborador.creado": "Сотрудник создан",
-      "asistencia.registrada": "Посещаемость отмечена"
+      "asistencia.registrada": "Посещаемость отмечена",
+      "producto.creado": "Товар создан",
+      "producto.actualizado": "Товар обновлён",
+      "cuenta_cobrar.cancelada": "ДЗ отменена",
+      "cuenta_cobrar.vencida": "ДЗ просрочена",
+      "cuenta_pagar.cancelada": "КЗ отменена",
+      "gasto.registrado": "Расход зарегистрирован",
+      "registro.creado": "Запись создана",
+      "registro.actualizado": "Запись обновлена",
+      "registro.eliminado": "Запись удалена"
     }
   },
   "treasury": {

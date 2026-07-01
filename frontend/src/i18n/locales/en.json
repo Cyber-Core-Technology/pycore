@@ -1487,7 +1487,16 @@
       "usuario.logout": "User logout",
       "usuario.bloqueado": "User blocked",
       "colaborador.creado": "Employee created",
-      "asistencia.registrada": "Attendance recorded"
+      "asistencia.registrada": "Attendance recorded",
+      "producto.creado": "Product created",
+      "producto.actualizado": "Product updated",
+      "cuenta_cobrar.cancelada": "AR cancelled",
+      "cuenta_cobrar.vencida": "AR overdue",
+      "cuenta_pagar.cancelada": "AP cancelled",
+      "gasto.registrado": "Expense recorded",
+      "registro.creado": "Record created",
+      "registro.actualizado": "Record updated",
+      "registro.eliminado": "Record deleted"
     }
   },
   "treasury": {

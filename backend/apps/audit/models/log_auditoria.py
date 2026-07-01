@@ -15,18 +15,27 @@ class LogAuditoria(models.Model):
         ('compra.cancelada', 'Compra cancelada'),
         ('stock.bajo', 'Stock bajo mínimo'),
         ('movimiento.creado', 'Movimiento de inventario'),
+        ('producto.creado', 'Producto creado'),
+        ('producto.actualizado', 'Producto actualizado'),
         ('cuenta_cobrar.creada', 'CxC creada'),
         ('cuenta_cobrar.pagada', 'CxC pagada'),
+        ('cuenta_cobrar.cancelada', 'CxC cancelada'),
+        ('cuenta_cobrar.vencida', 'CxC vencida'),
         ('cuenta_pagar.creada', 'CxP creada'),
         ('cuenta_pagar.pagada', 'CxP pagada'),
+        ('cuenta_pagar.cancelada', 'CxP cancelada'),
         ('pago.registrado', 'Pago registrado'),
+        ('gasto.registrado', 'Gasto registrado'),
         ('usuario.creado', 'Usuario creado'),
         ('usuario.login', 'Inicio de sesión'),
         ('usuario.logout', 'Cierre de sesión'),
         ('usuario.bloqueado', 'Usuario bloqueado'),
         ('colaborador.creado', 'Colaborador creado'),
         ('asistencia.registrada', 'Asistencia registrada'),
-        # Genérico
+        # Genérico — capturado por el middleware de escritura
+        ('registro.creado', 'Registro creado'),
+        ('registro.actualizado', 'Registro actualizado'),
+        ('registro.eliminado', 'Registro eliminado'),
         ('sistema.error_critico', 'Error crítico del sistema'),
     ]
 

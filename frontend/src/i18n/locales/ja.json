@@ -1480,7 +1480,16 @@
       "usuario.logout": "ユーザーログアウト",
       "usuario.bloqueado": "ユーザーブロック",
       "colaborador.creado": "従業員作成",
-      "asistencia.registrada": "勤怠登録"
+      "asistencia.registrada": "勤怠登録",
+      "producto.creado": "商品作成",
+      "producto.actualizado": "商品更新",
+      "cuenta_cobrar.cancelada": "売掛金キャンセル",
+      "cuenta_cobrar.vencida": "売掛金延滞",
+      "cuenta_pagar.cancelada": "買掛金キャンセル",
+      "gasto.registrado": "経費登録",
+      "registro.creado": "レコード作成",
+      "registro.actualizado": "レコード更新",
+      "registro.eliminado": "レコード削除"
     }
   },
   "treasury": {

@@ -88,6 +88,13 @@ class EventBus:
             logger.error(f"[EventBus] Redis error publicando {event_name}: {e}")
             return False
 
+    def emit_realtime(self, event_name: str, payload: Dict[str, Any]) -> None:
+        """Envía un evento SOLO a los clientes WebSocket (grupos empresa +
+        superadmin) sin invocar a los suscriptores del EventBus. Útil para
+        empujar en tiempo real algo ya persistido (p.ej. logs de auditoría
+        genéricos) evitando reprocesarlo."""
+        self._bridge_to_websockets(event_name, payload)
+
     def _bridge_to_websockets(self, event_name: str, payload: Dict[str, Any]) -> None:
         """Forward domain events to Channel Layer groups (tenant + superadmin global)."""
         try:

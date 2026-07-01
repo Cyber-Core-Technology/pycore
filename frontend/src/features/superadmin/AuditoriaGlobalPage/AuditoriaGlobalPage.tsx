@@ -17,17 +17,26 @@ const ACCION_VALUES = [
   'compra.cancelada',
   'stock.bajo',
   'movimiento.creado',
+  'producto.creado',
+  'producto.actualizado',
   'cuenta_cobrar.creada',
   'cuenta_cobrar.pagada',
+  'cuenta_cobrar.cancelada',
+  'cuenta_cobrar.vencida',
   'cuenta_pagar.creada',
   'cuenta_pagar.pagada',
+  'cuenta_pagar.cancelada',
   'pago.registrado',
+  'gasto.registrado',
   'usuario.creado',
   'usuario.login',
   'usuario.logout',
   'usuario.bloqueado',
   'colaborador.creado',
   'asistencia.registrada',
+  'registro.creado',
+  'registro.actualizado',
+  'registro.eliminado',
 ]
 
 const ACCION_COLOR: Record<string, { bg: string; color: string }> = {
@@ -42,6 +51,15 @@ const ACCION_COLOR: Record<string, { bg: string; color: string }> = {
   'usuario.logout':       { bg: 'rgba(107,114,128,0.12)',  color: '#9CA3AF' },
   'usuario.bloqueado':    { bg: 'rgba(239,68,68,0.12)',    color: '#EF4444' },
   'usuario.creado':       { bg: 'rgba(59,130,246,0.12)',   color: '#3B82F6' },
+  'producto.creado':      { bg: 'rgba(59,130,246,0.12)',   color: '#3B82F6' },
+  'producto.actualizado': { bg: 'rgba(59,130,246,0.12)',   color: '#3B82F6' },
+  'cuenta_cobrar.cancelada': { bg: 'rgba(239,68,68,0.12)', color: '#EF4444' },
+  'cuenta_cobrar.vencida':   { bg: 'rgba(245,158,11,0.12)', color: '#F59E0B' },
+  'cuenta_pagar.cancelada':  { bg: 'rgba(239,68,68,0.12)', color: '#EF4444' },
+  'gasto.registrado':     { bg: 'rgba(234,179,8,0.12)',    color: '#EAB308' },
+  'registro.creado':      { bg: 'rgba(59,130,246,0.12)',   color: '#3B82F6' },
+  'registro.actualizado': { bg: 'rgba(59,130,246,0.12)',   color: '#3B82F6' },
+  'registro.eliminado':   { bg: 'rgba(239,68,68,0.12)',    color: '#EF4444' },
 }
 
 interface LiveEvent {

@@ -1487,7 +1487,16 @@
       "usuario.logout": "Cierre de sesión",
       "usuario.bloqueado": "Usuario bloqueado",
       "colaborador.creado": "Colaborador creado",
-      "asistencia.registrada": "Asistencia registrada"
+      "asistencia.registrada": "Asistencia registrada",
+      "producto.creado": "Producto creado",
+      "producto.actualizado": "Producto actualizado",
+      "cuenta_cobrar.cancelada": "CxC cancelada",
+      "cuenta_cobrar.vencida": "CxC vencida",
+      "cuenta_pagar.cancelada": "CxP cancelada",
+      "gasto.registrado": "Gasto registrado",
+      "registro.creado": "Registro creado",
+      "registro.actualizado": "Registro actualizado",
+      "registro.eliminado": "Registro eliminado"
     }
   },
   "treasury": {

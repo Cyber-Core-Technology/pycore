@@ -1480,7 +1480,16 @@
       "usuario.logout": "Logout de usuário",
       "usuario.bloqueado": "Usuário bloqueado",
       "colaborador.creado": "Funcionário criado",
-      "asistencia.registrada": "Ponto registrado"
+      "asistencia.registrada": "Ponto registrado",
+      "producto.creado": "Produto criado",
+      "producto.actualizado": "Produto atualizado",
+      "cuenta_cobrar.cancelada": "CR cancelado",
+      "cuenta_cobrar.vencida": "CR vencido",
+      "cuenta_pagar.cancelada": "CP cancelado",
+      "gasto.registrado": "Despesa registrada",
+      "registro.creado": "Registro criado",
+      "registro.actualizado": "Registro atualizado",
+      "registro.eliminado": "Registro excluído"
     }
   },
   "treasury": {

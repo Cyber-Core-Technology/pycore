@@ -1480,7 +1480,16 @@
       "usuario.logout": "사용자 로그아웃",
       "usuario.bloqueado": "사용자 차단됨",
       "colaborador.creado": "직원 생성됨",
-      "asistencia.registrada": "출퇴근 기록됨"
+      "asistencia.registrada": "출퇴근 기록됨",
+      "producto.creado": "제품 생성됨",
+      "producto.actualizado": "제품 수정됨",
+      "cuenta_cobrar.cancelada": "매출채권 취소됨",
+      "cuenta_cobrar.vencida": "매출채권 연체됨",
+      "cuenta_pagar.cancelada": "매입채무 취소됨",
+      "gasto.registrado": "비용 등록됨",
+      "registro.creado": "레코드 생성됨",
+      "registro.actualizado": "레코드 수정됨",
+      "registro.eliminado": "레코드 삭제됨"
     }
   },
   "treasury": {

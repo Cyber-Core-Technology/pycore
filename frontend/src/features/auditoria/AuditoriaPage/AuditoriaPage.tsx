@@ -9,10 +9,13 @@ import type { AuditoriaFiltros, LogAuditoria } from '@/types/audit.types'
 const ACCION_KEYS = [
   'venta.creada', 'venta.cancelada', 'venta.pagada', 'devolucion.creada',
   'compra.creada', 'compra.recibida', 'compra.cancelada', 'stock.bajo',
-  'movimiento.creado', 'cuenta_cobrar.creada', 'cuenta_cobrar.pagada',
-  'cuenta_pagar.creada', 'cuenta_pagar.pagada', 'pago.registrado',
+  'movimiento.creado', 'producto.creado', 'producto.actualizado',
+  'cuenta_cobrar.creada', 'cuenta_cobrar.pagada', 'cuenta_cobrar.cancelada',
+  'cuenta_cobrar.vencida', 'cuenta_pagar.creada', 'cuenta_pagar.pagada',
+  'cuenta_pagar.cancelada', 'pago.registrado', 'gasto.registrado',
   'usuario.creado', 'usuario.login', 'usuario.logout', 'usuario.bloqueado',
   'colaborador.creado', 'asistencia.registrada',
+  'registro.creado', 'registro.actualizado', 'registro.eliminado',
 ]
 
 const ACCION_COLOR: Record<string, { bg: string; color: string }> = {
@@ -27,6 +30,15 @@ const ACCION_COLOR: Record<string, { bg: string; color: string }> = {
   'usuario.logout':       { bg: 'rgba(107,114,128,0.12)',  color: '#9CA3AF' },
   'usuario.bloqueado':    { bg: 'var(--color-error-bg)',   color: 'var(--color-error)' },
   'usuario.creado':       { bg: 'var(--color-info-bg)',    color: 'var(--color-info)' },
+  'producto.creado':      { bg: 'var(--color-info-bg)',    color: 'var(--color-info)' },
+  'producto.actualizado': { bg: 'rgba(59,130,246,0.12)',   color: '#3B82F6' },
+  'cuenta_cobrar.cancelada': { bg: 'var(--color-error-bg)',   color: 'var(--color-error)' },
+  'cuenta_cobrar.vencida':   { bg: 'var(--color-warning-bg)', color: 'var(--color-warning)' },
+  'cuenta_pagar.cancelada':  { bg: 'var(--color-error-bg)',   color: 'var(--color-error)' },
+  'gasto.registrado':     { bg: 'rgba(234,179,8,0.12)',    color: '#EAB308' },
+  'registro.creado':      { bg: 'var(--color-info-bg)',    color: 'var(--color-info)' },
+  'registro.actualizado': { bg: 'rgba(59,130,246,0.12)',   color: '#3B82F6' },
+  'registro.eliminado':   { bg: 'var(--color-error-bg)',   color: 'var(--color-error)' },
 }
 
 function AccionBadge({ accion, label }: { accion: string; label: string }) {

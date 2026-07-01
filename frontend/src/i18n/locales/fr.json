@@ -1481,7 +1481,16 @@
       "usuario.logout": "Déconnexion utilisateur",
       "usuario.bloqueado": "Utilisateur bloqué",
       "colaborador.creado": "Employé créé",
-      "asistencia.registrada": "Présence enregistrée"
+      "asistencia.registrada": "Présence enregistrée",
+      "producto.creado": "Produit créé",
+      "producto.actualizado": "Produit mis à jour",
+      "cuenta_cobrar.cancelada": "Compte client annulé",
+      "cuenta_cobrar.vencida": "Compte client échu",
+      "cuenta_pagar.cancelada": "Compte fournisseur annulé",
+      "gasto.registrado": "Dépense enregistrée",
+      "registro.creado": "Enregistrement créé",
+      "registro.actualizado": "Enregistrement mis à jour",
+      "registro.eliminado": "Enregistrement supprimé"
     }
   },
   "treasury": {

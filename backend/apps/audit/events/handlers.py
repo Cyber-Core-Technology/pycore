@@ -1,6 +1,6 @@
 import logging
 from shared.events import event_bus, DomainEvents, BaseEventHandler
-from shared.request_context import get_request_context
+from shared.request_context import get_request_context, mark_audited
 from apps.audit.services import AuditService
 
 logger = logging.getLogger(__name__)
@@ -33,6 +33,8 @@ class AuditEventHandler(BaseEventHandler):
             id_registro=payload.get(self.id_field, ''),
             ip_address=ip_address,
         )
+        # Evita que el middleware genérico duplique esta misma request
+        mark_audited()
         logger.debug(f"[Audit] ✅ Log registrado: {self.accion}")
 
 
@@ -47,11 +49,17 @@ def setup_audit_event_handlers():
         (DomainEvents.COMPRA_CANCELADA,      'Compras',          'compra_id'),
         (DomainEvents.STOCK_BAJO,            'Inventario',       'inventario_id'),
         (DomainEvents.MOVIMIENTO_CREADO,     'Movimientos',      'movimiento_id'),
+        (DomainEvents.PRODUCTO_CREADO,       'Productos',        'producto_id'),
+        (DomainEvents.PRODUCTO_ACTUALIZADO,  'Productos',        'producto_id'),
         (DomainEvents.CUENTA_COBRAR_CREADA,  'CuentasPorCobrar', 'cxc_id'),
         (DomainEvents.CUENTA_COBRAR_PAGADA,  'CuentasPorCobrar', 'cxc_id'),
+        (DomainEvents.CUENTA_COBRAR_CANCELADA, 'CuentasPorCobrar', 'cxc_id'),
+        (DomainEvents.CUENTA_COBRAR_VENCIDA, 'CuentasPorCobrar', 'cxc_id'),
         (DomainEvents.CUENTA_PAGAR_CREADA,   'CuentasPorPagar',  'cxp_id'),
         (DomainEvents.CUENTA_PAGAR_PAGADA,   'CuentasPorPagar',  'cxp_id'),
+        (DomainEvents.CUENTA_PAGAR_CANCELADA, 'CuentasPorPagar', 'cxp_id'),
         (DomainEvents.PAGO_REGISTRADO,       'Pagos',            'pago_id'),
+        (DomainEvents.GASTO_REGISTRADO,      'Gastos',           'gasto_id'),
         (DomainEvents.USUARIO_CREADO,        'Usuarios',         'usuario_id'),
         (DomainEvents.USUARIO_LOGIN,         'Usuarios',         'usuario_id'),
         (DomainEvents.USUARIO_LOGOUT,        'Usuarios',         'usuario_id'),

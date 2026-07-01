@@ -1482,7 +1482,16 @@
       "usuario.logout": "Gebruiker uitgelogd",
       "usuario.bloqueado": "Gebruiker geblokkeerd",
       "colaborador.creado": "Medewerker aangemaakt",
-      "asistencia.registrada": "Aanwezigheid geregistreerd"
+      "asistencia.registrada": "Aanwezigheid geregistreerd",
+      "producto.creado": "Product aangemaakt",
+      "producto.actualizado": "Product bijgewerkt",
+      "cuenta_cobrar.cancelada": "Debiteur geannuleerd",
+      "cuenta_cobrar.vencida": "Debiteur vervallen",
+      "cuenta_pagar.cancelada": "Crediteur geannuleerd",
+      "gasto.registrado": "Uitgave geregistreerd",
+      "registro.creado": "Record aangemaakt",
+      "registro.actualizado": "Record bijgewerkt",
+      "registro.eliminado": "Record verwijderd"
     }
   },
   "treasury": {

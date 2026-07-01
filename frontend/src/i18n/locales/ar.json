@@ -1480,7 +1480,16 @@
       "usuario.logout": "تسجيل خروج مستخدم",
       "usuario.bloqueado": "مستخدم محظور",
       "colaborador.creado": "موظف أُنشئ",
-      "asistencia.registrada": "حضور مسجّل"
+      "asistencia.registrada": "حضور مسجّل",
+      "producto.creado": "منتج أُنشئ",
+      "producto.actualizado": "منتج حُدّث",
+      "cuenta_cobrar.cancelada": "ذمة مدينة أُلغيت",
+      "cuenta_cobrar.vencida": "ذمة مدينة مستحقة",
+      "cuenta_pagar.cancelada": "ذمة دائنة أُلغيت",
+      "gasto.registrado": "مصروف مسجّل",
+      "registro.creado": "سجل أُنشئ",
+      "registro.actualizado": "سجل حُدّث",
+      "registro.eliminado": "سجل حُذف"
     }
   },
   "treasury": {
