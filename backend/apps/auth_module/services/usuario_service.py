@@ -3,6 +3,7 @@ from django.db import transaction
 from apps.auth_module.repositories import UsuarioRepository
 from apps.auth_module.exceptions import UsuarioYaExisteException
 from apps.auth_module.models import Rol, UsuarioRol
+from apps.auth_module.permissions.catalog import default_permisos_para
 from apps.core.services import EmpresaService
 from apps.core.repositories import EmpresaRepository
 
@@ -60,6 +61,7 @@ class UsuarioService:
             defaults={
                 'descripcion': 'Administrador de la empresa',
                 'es_sistema': True,
+                'permisos': default_permisos_para('admin'),
             },
         )
         repo.asignar_rol(usuario, rol_admin)
