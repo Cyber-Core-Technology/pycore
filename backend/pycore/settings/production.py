@@ -2,6 +2,10 @@ from .base import *
 
 DEBUG = False
 
+# Marca este proceso como el único autorizado a escribir en las rutas de
+# backup reales (daily/, weekly/) del bucket de S3.
+ENVIRONMENT = config('ENVIRONMENT', default='production')
+
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'

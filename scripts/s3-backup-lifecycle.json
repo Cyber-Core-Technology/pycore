@@ -1,0 +1,28 @@
+{
+  "Rules": [
+    {
+      "ID": "daily-expira-30d",
+      "Filter": { "Prefix": "daily/" },
+      "Status": "Enabled",
+      "Expiration": { "Days": 30 }
+    },
+    {
+      "ID": "weekly-expira-90d",
+      "Filter": { "Prefix": "weekly/" },
+      "Status": "Enabled",
+      "Expiration": { "Days": 90 }
+    },
+    {
+      "ID": "non-prod-expira-7d",
+      "Filter": { "Prefix": "non-prod/" },
+      "Status": "Enabled",
+      "Expiration": { "Days": 7 }
+    },
+    {
+      "ID": "aborta-multipart-incompletos-7d",
+      "Filter": { "Prefix": "" },
+      "Status": "Enabled",
+      "AbortIncompleteMultipartUpload": { "DaysAfterInitiation": 7 }
+    }
+  ]
+}

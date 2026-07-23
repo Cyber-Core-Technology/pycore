@@ -1,5 +1,7 @@
 from .base import *
 
+ENVIRONMENT = 'testing'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
