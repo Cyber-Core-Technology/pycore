@@ -1,6 +1,7 @@
 services:
 
   backend:
+    image: pycore-erp-backend:prod
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -15,6 +16,7 @@ services:
     restart: always
 
   celery_worker:
+    image: pycore-erp-backend:prod
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -23,6 +25,7 @@ services:
     restart: always
 
   celery_beat:
+    image: pycore-erp-backend:prod
     build:
       context: ./backend
       dockerfile: Dockerfile

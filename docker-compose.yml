@@ -33,6 +33,19 @@ services:
       retries: 5
 
   backend:
+    # backend, celery_worker y celery_beat comparten etiqueta a propósito.
+    #
+    # Los tres construyen exactamente la misma imagen —mismo contexto, mismo
+    # Dockerfile, mismo REQUIREMENTS— pero Compose genera una imagen POR
+    # SERVICIO, así que pueden quedar desincronizados sin que nadie lo note:
+    # el 2026-08-26 se reconstruyeron backend y worker al agregar PyYAML y
+    # beat se quedó con la imagen de nueve días antes. Arrancaba, reventaba al
+    # importar, y estuvo dos días en bucle de reinicio sin correr una sola
+    # tarea programada —ni los respaldos—.
+    #
+    # Con la etiqueta compartida el segundo y el tercer build son caché y las
+    # tres imágenes son, literalmente, la misma. No pueden divergir.
+    image: pycore-erp-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -59,6 +72,7 @@ services:
       start_period: 30s
 
   celery_worker:
+    image: pycore-erp-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -77,6 +91,7 @@ services:
     restart: unless-stopped
 
   celery_beat:
+    image: pycore-erp-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile

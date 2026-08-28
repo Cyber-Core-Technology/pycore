@@ -2,6 +2,7 @@
 services:
 
   backend:
+    image: pycore-erp-backend:dev
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -14,6 +15,7 @@ services:
       - FRONTEND_URL=http://localhost:8080
 
   celery_worker:
+    image: pycore-erp-backend:dev
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -21,6 +23,7 @@ services:
         REQUIREMENTS: development
 
   celery_beat:
+    image: pycore-erp-backend:dev
     build:
       context: ./backend
       dockerfile: Dockerfile
