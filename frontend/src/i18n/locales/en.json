@@ -980,6 +980,7 @@
       "errorSave": "Error saving changes.",
       "passwordMismatch": "Passwords do not match.",
       "noRoleSelected": "Select at least one role.",
+      "noBranchSelected": "Assign at least one branch or the user won't be able to sign in.",
       "deactivateConfirm": "Deactivate {{name}}?",
       "deactivate": "Deactivate",
       "roleDescriptions": {
@@ -2745,6 +2746,8 @@
     "emptyProducts": "No products. Click \"Add product\".",
     "labelProducto": "Product",
     "selectProducto": "Select product...",
+    "searchProducto": "Search by name or SKU...",
+    "noProductoResults": "No results",
     "labelCantidad": "Quantity",
     "labelPrecioUnitario": "Unit price ($)",
     "labelDescuento": "Discount (%)",

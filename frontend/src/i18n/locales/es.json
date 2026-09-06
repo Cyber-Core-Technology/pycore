@@ -980,6 +980,7 @@
       "errorSave": "Error al guardar los cambios.",
       "passwordMismatch": "Las contraseñas no coinciden.",
       "noRoleSelected": "Selecciona al menos un rol.",
+      "noBranchSelected": "Asigna al menos una sucursal o el usuario no podrá acceder.",
       "deactivateConfirm": "¿Dar de baja a {{name}}?",
       "deactivate": "Dar de baja",
       "roleDescriptions": {
@@ -2745,6 +2746,8 @@
     "emptyProducts": "Sin productos. Haz clic en \"Agregar producto\".",
     "labelProducto": "Producto",
     "selectProducto": "Seleccionar producto...",
+    "searchProducto": "Buscar por nombre o SKU...",
+    "noProductoResults": "Sin resultados",
     "labelCantidad": "Cantidad",
     "labelPrecioUnitario": "Precio unitario ($)",
     "labelDescuento": "Descuento (%)",

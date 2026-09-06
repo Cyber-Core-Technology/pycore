@@ -179,9 +179,12 @@ class CrearCompraRequestSerializer(serializers.Serializer):
     id_sucursal = serializers.UUIDField()    # ← UUID
     fecha_entrega = serializers.DateField(required=False, allow_null=True)
     fecha_vencimiento = serializers.DateField(required=False, allow_null=True)
+    # Toda compra se paga de alguna forma: ya no se guarda sin método. Si no
+    # llega, se asume efectivo (lo que trae marcado el formulario), pero un
+    # `null` explícito se rechaza en lugar de guardarse en blanco.
     metodo_pago = serializers.ChoiceField(
         choices=[c[0] for c in Compra.METODO_PAGO_CHOICES],
-        required=False, allow_null=True,
+        required=False, default='efectivo',
     )
     numero_factura = serializers.CharField(required=False, default='', allow_blank=True)
     orden_compra = serializers.CharField(required=False, default='', allow_blank=True)
