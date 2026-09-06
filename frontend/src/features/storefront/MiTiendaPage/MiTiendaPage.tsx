@@ -796,7 +796,7 @@ function ProductEditorRow({
     staleTime: 5 * 60 * 1000,
   })
 
-  const [visib,    setVisib]    = useState<VisibilidadPublica>(producto.visibilidad_publica ?? 'privado')
+  const [visib,    setVisib]    = useState<VisibilidadPublica>(producto.visibilidad_publica ?? 'publico_con_stock')
   const [descLarga, setDescLarga] = useState('')
   const [galeria,  setGaleria]  = useState<string[]>([])
   const [ficha,    setFicha]    = useState<FichaTecnicaItem[]>([])
@@ -868,7 +868,7 @@ function ProductEditorRow({
     }
   }
 
-  const visibOption = VISIB_VALUES.find((o) => o.value === (producto.visibilidad_publica ?? 'privado'))!
+  const visibOption = VISIB_VALUES.find((o) => o.value === (producto.visibilidad_publica ?? 'publico_con_stock'))!
 
   return (
     <div style={{ borderBottom: '1px solid var(--border)' }}>

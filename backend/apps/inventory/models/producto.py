@@ -75,10 +75,14 @@ class Producto(models.Model):
     )
 
     # Storefront
+    # Nace público: un producto nuevo aparece en la tienda mientras tenga
+    # existencia, sin tener que ir a marcarlo uno por uno. Se cambia por
+    # producto desde Mi Tienda, y no expone nada mientras la tienda de la
+    # empresa siga sin activarse (`ConfiguracionStorefront.activo`).
     visibilidad_publica = models.CharField(
         max_length=20,
         choices=VISIBILIDAD_PUBLICA_CHOICES,
-        default='privado',
+        default='publico_con_stock',
         db_index=True,
     )
 
