@@ -7,6 +7,11 @@ app = Celery('pycore')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
+# `shared` no es una app de Django (no está en INSTALLED_APPS), así que
+# autodiscover_tasks() no la recorre sola — hay que apuntarla a mano. Aquí
+# vive la tarea que ejecuta el EventBus fuera del request (shared/events/tasks.py).
+app.autodiscover_tasks(['shared.events'], related_name='tasks')
+
 
 @app.task(bind=True, ignore_result=True)
 def debug_task(self):
