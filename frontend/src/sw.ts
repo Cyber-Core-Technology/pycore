@@ -8,12 +8,21 @@ import { CacheableResponsePlugin } from 'workbox-cacheable-response'
 
 declare let self: ServiceWorkerGlobalScope
 
-// ── Activación inmediata al hacer clic en "Actualizar" ─────────
-// vite-plugin-pwa envía este mensaje desde updateServiceWorker(true)
-self.addEventListener('message', (event) => {
-  if (event.data?.type === 'SKIP_WAITING') {
-    self.skipWaiting()
-  }
+// ── Activación inmediata, sin esperar a nadie ──────────────────
+// Antes la versión nueva se quedaba "en espera" hasta que alguien pulsara
+// "Actualizar", y un F5 no la activa: la pestaña sigue siendo cliente del
+// service worker viejo, que le vuelve a servir el index.html y el JS viejos.
+// Así es como un equipo siguió llamando a un dominio de API que ya no existía
+// días después de corregido, mientras en incógnito todo funcionaba.
+//
+// Ahora el nuevo toma el control en cuanto termina de instalarse. La página
+// abierta sigue con su JS hasta que se recarga (ver `usePWA`), pero la
+// siguiente carga —F5 incluido— ya es la versión nueva.
+self.addEventListener('install', () => {
+  self.skipWaiting()
+})
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim())
 })
 
 // ── Precaching del app shell ───────────────────────────────────
